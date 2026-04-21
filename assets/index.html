@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Language Translator</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Landing ─────────────────────────────────────────────────────── */
+#landing {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#landing.gone { display: none; }
+
+.hero-title {
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #e6edf3;
+}
+.hero-sub { font-size: 15px; color: #8b949e; letter-spacing: 1px; }
+
+.hero-features {
+  display: flex;
+  gap: 32px;
+  margin: 8px 0 28px;
+  font-size: 13px;
+  color: #58a6ff;
+}
+.hero-features span::before { content: '✦  '; }
+
+.activate-btn {
+  padding: 18px 72px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  background: transparent;
+  color: #00BFFF;
+  border: 2px solid #00BFFF;
+  border-radius: 50px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.25s;
+  animation: glow 2.2s ease-in-out infinite;
+}
+.activate-btn:hover {
+  background: #00BFFF18;
+  box-shadow: 0 0 48px #00BFFF99, 0 0 96px #00BFFF44;
+  animation: none;
+  transform: scale(1.04);
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 10px #00BFFF33; }
+  50%       { box-shadow: 0 0 30px #00BFFF88, 0 0 60px #00BFFF33; }
+}
+.hint { font-size: 12px; color: #484f58; margin-top: 6px; }
+
+/* ── App ─────────────────────────────────────────────────────────── */
+#app { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+#app.active { display: flex; }
+
+#topbar {
+  background: #161b22;
+  border-bottom: 1px solid #21262d;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#topbar .brand { font-size: 14px; font-weight: 700; color: #00BFFF; letter-spacing: 1px; }
+#share-info { font-size: 12px; color: #8b949e; }
+#share-info a { color: #58a6ff; text-decoration: none; font-family: monospace; }
+#share-info a:hover { text-decoration: underline; }
+
+#panels {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 640px 1fr;
+  gap: 14px;
+  padding: 14px;
+  overflow: hidden;
+}
+
+/* Camera panel */
+#cam-panel {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-label {
+  padding: 9px 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #8b949e;
+  border-bottom: 1px solid #21262d;
+  flex-shrink: 0;
+}
+
+/* Video fills camera panel — mirrored so it feels like a mirror */
+#live-video {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: scaleX(-1);   /* mirror = natural selfie view */
+  background: #090d13;
+}
+
+/* Right column */
+#right-col { display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+.panel {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+#sign-big {
+  font-size: 68px;
+  font-weight: 800;
+  color: #00BFFF;
+  text-align: center;
+  line-height: 1;
+  padding: 6px 0 2px;
+  text-shadow: 0 0 22px #00BFFF55;
+  flex-shrink: 0;
+}
+#conf-text {
+  font-size: 12px;
+  color: #8b949e;
+  text-align: center;
+  height: 16px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+#transcript-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #8b949e;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+#transcript-box {
+  flex: 1;
+  min-height: 0;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: #e6edf3;
+  line-height: 1.7;
+  overflow-y: auto;
+  word-break: break-word;
+}
+.btn-row { display: flex; gap: 8px; margin-top: 10px; flex-shrink: 0; }
+
+#speech-display {
+  flex: 1;
+  min-height: 0;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 19px;
+  font-weight: 600;
+  color: #e6edf3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.5;
+  overflow: hidden;
+  margin-bottom: 12px;
+  word-break: break-word;
+}
+#speech-display.placeholder { color: #484f58; font-size: 14px; font-weight: 400; }
+.interim-text { color: #6e7681; }
+
+.mic-row { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+#mic-status { font-size: 12px; color: #8b949e; min-width: 100px; }
+
+.btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.18s;
+}
+.btn-ghost { background: #21262d; color: #8b949e; }
+.btn-ghost:hover { background: #30363d; color: #e6edf3; }
+
+.btn-mic {
+  padding: 9px 22px;
+  background: #1f6aa5;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.18s;
+}
+.btn-mic:hover { background: #144870; }
+.btn-mic.on { background: #6b0000; }
+.btn-mic.on:hover { background: #4a0000; }
+</style>
+</head>
+<body>
+
+<!-- Landing -->
+<div id="landing">
+  <div class="hero-title">Sign Language Translator</div>
+  <div class="hero-sub">Two people, one screen — signing and speaking, understood.</div>
+  <div class="hero-features">
+    <span>Real-time hand signing</span>
+    <span>Live speech-to-text</span>
+    <span>Share with anyone</span>
+  </div>
+  <button class="activate-btn" onclick="activate()">&#9889; Activate</button>
+  <div class="hint">Camera &amp; microphone access will be requested</div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div id="topbar">
+    <span class="brand">Sign Language Translator</span>
+    <span id="share-info">Share on your network: <a id="share-link" href="#" target="_blank">loading…</a></span>
+  </div>
+  <div id="panels">
+
+    <!-- Camera -->
+    <div id="cam-panel">
+      <div class="panel-label">Deaf Person — Camera</div>
+      <video id="live-video" autoplay playsinline muted></video>
+    </div>
+
+    <!-- Right column -->
+    <div id="right-col">
+
+      <!-- Sign detection -->
+      <div class="panel">
+        <div class="panel-label">Signing → Text</div>
+        <div id="sign-big">—</div>
+        <div id="conf-text"></div>
+        <div id="transcript-title">Transcript</div>
+        <div id="transcript-box"></div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="clearTranscript()">Clear</button>
+        </div>
+      </div>
+
+      <!-- Speech -->
+      <div class="panel">
+        <div class="panel-label">Speech → Text (for deaf person)</div>
+        <div id="speech-display" class="placeholder">Press mic to start speaking</div>
+        <div class="mic-row">
+          <span id="mic-status">Mic off</span>
+          <button class="btn-mic" id="mic-btn" onclick="toggleMic()">&#127908; Start Listening</button>
+          <button class="btn btn-ghost" onclick="clearSpeech()">Clear</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const CONF_THRESHOLD = 0.75;
+const FRAME_MS       = 150;
+const REPEAT_DELAY   = 1.5;
+
+let stream      = null;
+let pendingReq  = false;
+let lastLabel   = null;
+let lastLabelTs = 0;
+
+const video      = document.getElementById('live-video');
+const signBig    = document.getElementById('sign-big');
+const confText   = document.getElementById('conf-text');
+const transcript = document.getElementById('transcript-box');
+const speechDisp = document.getElementById('speech-display');
+const micStatus  = document.getElementById('mic-status');
+const micBtn     = document.getElementById('mic-btn');
+
+// Share URL
+fetch('/info')
+  .then(r => r.json())
+  .then(d => {
+    const link = document.getElementById('share-link');
+    link.textContent = d.local_url;
+    link.href = d.local_url;
+  })
+  .catch(() => {
+    document.getElementById('share-link').textContent = window.location.origin;
+  });
+
+// ── Activate ──────────────────────────────────────────────────────
+async function activate() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    video.srcObject = stream;
+
+    // Wait until video is actually playing
+    await video.play();
+
+    document.getElementById('landing').classList.add('gone');
+    document.getElementById('app').classList.add('active');
+
+    startLoop();
+  } catch (err) {
+    alert('Could not access camera:\n' + err.message);
+  }
+}
+
+// ── Prediction loop ───────────────────────────────────────────────
+const captureCanvas = document.createElement('canvas');
+const captureCtx    = captureCanvas.getContext('2d');
+
+function startLoop() {
+  setInterval(async () => {
+    // Skip if a request is in flight or video isn't ready
+    if (pendingReq || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
+    pendingReq = true;
+
+    // Capture frame (un-mirrored — server does its own flip)
+    captureCanvas.width  = video.videoWidth;
+    captureCanvas.height = video.videoHeight;
+    captureCtx.drawImage(video, 0, 0);
+    const b64 = captureCanvas.toDataURL('image/jpeg', 0.82);
+
+    try {
+      const resp = await fetch('/predict', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ image: b64 }),
+      });
+      const data = await resp.json();
+      handleResult(data);
+    } catch (_) {
+      // server unreachable — no update this frame
+    }
+
+    pendingReq = false;
+  }, FRAME_MS);
+}
+
+function handleResult(data) {
+  if (data.error) {
+    confText.textContent = data.error;
+    return;
+  }
+
+  const label = data.label;
+  const conf  = data.confidence || 0;
+
+  if (label && conf >= CONF_THRESHOLD) {
+    signBig.textContent  = label;
+    confText.textContent = `Confidence: ${(conf * 100).toFixed(0)}%`;
+
+    const now = Date.now() / 1000;
+    if (label !== lastLabel || (now - lastLabelTs) > REPEAT_DELAY) {
+      transcript.textContent += label + '  ';
+      transcript.scrollTop = transcript.scrollHeight;
+      lastLabel   = label;
+      lastLabelTs = now;
+    }
+  } else {
+    signBig.textContent  = '—';
+    confText.textContent = '';
+  }
+}
+
+function clearTranscript() {
+  transcript.textContent = '';
+  lastLabel = null;
+}
+
+// ── Web Speech API ────────────────────────────────────────────────
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let micOn = false;
+
+function toggleMic() {
+  if (!SR) {
+    alert('Speech recognition requires Chrome or Edge browser.');
+    return;
+  }
+  micOn ? stopMic() : startMic();
+}
+
+function startMic() {
+  recognition = new SR();
+  recognition.continuous     = true;
+  recognition.interimResults = true;
+  recognition.lang           = 'en-US';
+
+  recognition.onstart = () => {
+    micOn = true;
+    micBtn.textContent = '⏹ Stop Listening';
+    micBtn.classList.add('on');
+    micStatus.textContent = 'Listening…';
+    speechDisp.classList.remove('placeholder');
+  };
+
+  recognition.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t + ' ';
+      else interim += t;
+    }
+    if (final) {
+      speechDisp.textContent = final.trim();
+    } else if (interim) {
+      speechDisp.innerHTML = `<span class="interim-text">${interim}</span>`;
+    }
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error !== 'no-speech') micStatus.textContent = 'Error: ' + e.error;
+  };
+
+  recognition.onend = () => {
+    if (micOn) { try { recognition.start(); } catch(_){} }
+    else {
+      micStatus.textContent = 'Mic off';
+      micBtn.textContent    = '🎤 Start Listening';
+      micBtn.classList.remove('on');
+    }
+  };
+
+  recognition.start();
+}
+
+function stopMic() {
+  micOn = false;
+  if (recognition) recognition.stop();
+}
+
+function clearSpeech() {
+  speechDisp.textContent = 'Press mic to start speaking';
+  speechDisp.classList.add('placeholder');
+}
+</script>
+</body>
+</html>

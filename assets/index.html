@@ -574,94 +574,157 @@ const SIGNS = {
 const KNOWN_WORDS = Object.keys(SIGNS).filter(k => k.length > 1).sort();
 
 // Three.js state
-let gRenderer = null, gScene, gCamera, gArmL, gArmR, gRoot;
+let gRenderer = null, gArmL, gArmR, gRoot;
 let gQueue = [], gLastStep = 0, gAnimT = 1, gAnimStart = 0;
 let gCur = {...DEF}, gTgt = {...DEF};
 let guideOpen = false;
 
+function lerp(a,b,t){ return a+(b-a)*t; }
+function ss(t){ return t*t*(3-2*t); }
+
+function applyPose(p){
+  if (!gArmL) return;
+  gArmL.ua.rotation.set(p.sLx,0,p.sLz);
+  gArmL.fa.rotation.set(p.eLx,0,p.eLz);
+  gArmR.ua.rotation.set(p.sRx,0,p.sRz);
+  gArmR.fa.rotation.set(p.eRx,0,p.eRz);
+}
+
 function initGuide() {
-  if (gRenderer) return;
-  const canvas = document.getElementById('guide-canvas');
-  const W = 280, H = 340;
-  gRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  gRenderer.setSize(W, H); gRenderer.shadowMap.enabled = true;
-  gRenderer.setPixelRatio(window.devicePixelRatio || 1);
+  if (gRenderer) { gRenderer.render(gRenderer._scene, gRenderer._camera); return; }
 
-  gScene = new THREE.Scene();
-  gScene.background = new THREE.Color(0x08101f);
-  gScene.fog = new THREE.FogExp2(0x08101f, 0.07);
-
-  gCamera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
-  gCamera.position.set(0, 0.5, 5.0); gCamera.lookAt(0, 0.1, 0);
-
-  gScene.add(new THREE.AmbientLight(0x1a2d55, 1.8));
-  const key = new THREE.DirectionalLight(0x5599dd, 2.0);
-  key.position.set(3, 5, 4); key.castShadow = true; gScene.add(key);
-  gScene.add(Object.assign(new THREE.PointLight(0x00BFFF, 0.8, 20), { position: new THREE.Vector3(-4, 3, -2) }));
-
-  const skin  = new THREE.MeshPhongMaterial({ color:0x1a5fa8, specular:0x55aaff, shininess:90 });
-  const joint = new THREE.MeshPhongMaterial({ color:0x0d3468, specular:0x00BFFF,  shininess:140, emissive:0x081828 });
-  const head  = new THREE.MeshPhongMaterial({ color:0x1a4882, specular:0x55aaff, shininess:110 });
-  const eye   = new THREE.MeshPhongMaterial({ color:0x00BFFF, emissive:0x003366, shininess:200 });
-
-  const cyl = (rt,rb,h,m) => Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),m),{castShadow:true,receiveShadow:true});
-  const ball = (r,m)      => Object.assign(new THREE.Mesh(new THREE.SphereGeometry(r,14,14),m),    {castShadow:true,receiveShadow:true});
-
-  gRoot = new THREE.Group(); gScene.add(gRoot);
-  const torso = cyl(.21,.27,.78,skin); torso.position.y=0; gRoot.add(torso);
-  const hd = ball(.26,head); hd.position.y=.66; gRoot.add(hd);
-  [-0.1,0.1].forEach(x=>{ const e=ball(.048,eye); e.position.set(x,.70,.24); gRoot.add(e); });
-
-  function buildArm(side) {
-    const sh = new THREE.Group(); sh.position.set(side*.34,.30,0); gRoot.add(sh); sh.add(ball(.115,joint));
-    const ua = new THREE.Group(); sh.add(ua);
-    const u = cyl(.082,.092,.42,skin); u.position.y=-.21; ua.add(u);
-    const el = new THREE.Group(); el.position.y=-.42; ua.add(el); el.add(ball(.09,joint));
-    const fa = new THREE.Group(); el.add(fa);
-    const f = cyl(.068,.078,.38,skin); f.position.y=-.19; fa.add(f);
-    const hnd = ball(.105,joint); hnd.position.y=-.38; fa.add(hnd);
-    return { sh, ua, el, fa };
-  }
-  gArmL = buildArm(-1); gArmR = buildArm(1);
-  const grid = new THREE.GridHelper(6,12,0x0e2244,0x0a1832); grid.position.y=-1.44; gScene.add(grid);
-
-  function lerp(a,b,t){ return a+(b-a)*t; }
-  function ss(t){ return t*t*(3-2*t); }
-  function applyPose(p){
-    gArmL.ua.rotation.set(p.sLx,0,p.sLz); gArmL.fa.rotation.set(p.eLx,0,p.eLz);
-    gArmR.ua.rotation.set(p.sRx,0,p.sRz); gArmR.fa.rotation.set(p.eRx,0,p.eRz);
+  if (typeof THREE === 'undefined') {
+    document.getElementById('guide-status').textContent = '⚠️ 3D library failed to load. Check internet connection.';
+    return;
   }
 
-  applyPose(DEF);
+  try {
+    const canvas = document.getElementById('guide-canvas');
+    const W = 280, H = 340;
 
-  (function render(ts){
-    requestAnimationFrame(render);
-    if (!guideOpen) return;
+    gRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    gRenderer.setSize(W, H);
+    gRenderer.shadowMap.enabled = false; // disable for reliability
+    gRenderer.setPixelRatio(1);          // no HiDPI scaling issues
 
-    if (gQueue.length && (ts - gLastStep) >= 680) {
-      const item = gQueue.shift();
-      if (item.reset) { gCur={...gTgt}; gTgt={...DEF}; gAnimT=0; gAnimStart=performance.now(); }
-      else if (!item.pause) { gCur={...gTgt}; gTgt={...item.pose}; gAnimT=0; gAnimStart=performance.now(); }
-      gLastStep = ts;
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 100);
+    gRenderer._scene  = scene;   // store refs for re-renders
+    gRenderer._camera = camera;
+
+    scene.background = new THREE.Color(0x0d1b2a);
+
+    camera.position.set(0, 0.4, 4.8);
+    camera.lookAt(0, 0, 0);
+
+    // Bright lights so avatar is clearly visible
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const key = new THREE.DirectionalLight(0xffffff, 1.2);
+    key.position.set(2, 4, 3);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x4488ff, 0.6);
+    fill.position.set(-3, 2, -2);
+    scene.add(fill);
+
+    // Bright visible materials
+    const skin  = new THREE.MeshLambertMaterial({ color: 0x2288dd });
+    const joint = new THREE.MeshLambertMaterial({ color: 0x0055aa });
+    const headM = new THREE.MeshLambertMaterial({ color: 0x1166cc });
+    const eyeM  = new THREE.MeshLambertMaterial({ color: 0x00eeff, emissive: 0x004466 });
+
+    function cyl(rt,rb,h,m) {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,12), m);
+      return mesh;
     }
-    if (gAnimT < 1) {
-      const t = Math.min((performance.now()-gAnimStart)/300, 1);
-      gAnimT = t;
-      const out={};
-      for (const k in gCur) out[k]=lerp(gCur[k],gTgt[k],ss(t));
-      applyPose(out);
+    function ball(r,m) {
+      return new THREE.Mesh(new THREE.SphereGeometry(r,12,12), m);
     }
-    if (!gQueue.length && gAnimT>=1) gRoot.rotation.y = Math.sin(ts*0.0004)*0.06;
-    gRenderer.render(gScene, gCamera);
-  })(0);
+
+    gRoot = new THREE.Group();
+    scene.add(gRoot);
+
+    // Body
+    const torso = cyl(.21,.27,.75,skin); torso.position.y=0; gRoot.add(torso);
+    const hd = ball(.25,headM); hd.position.y=.63; gRoot.add(hd);
+    [-0.09,0.09].forEach(x=>{ const e=ball(.045,eyeM); e.position.set(x,.67,.23); gRoot.add(e); });
+
+    // Legs
+    [-0.15,0.15].forEach(side=>{
+      const leg = cyl(.09,.10,.50,skin); leg.position.set(side,-.63,0); gRoot.add(leg);
+    });
+
+    function buildArm(side) {
+      const sh = new THREE.Group(); sh.position.set(side*.33,.28,0); gRoot.add(sh);
+      sh.add(ball(.11,joint));
+      const ua = new THREE.Group(); sh.add(ua);
+      const u = cyl(.08,.09,.40,skin); u.position.y=-.20; ua.add(u);
+      const el = new THREE.Group(); el.position.y=-.40; ua.add(el);
+      el.add(ball(.085,joint));
+      const fa = new THREE.Group(); el.add(fa);
+      const f = cyl(.065,.075,.36,skin); f.position.y=-.18; fa.add(f);
+      const hnd = ball(.10,joint); hnd.position.y=-.36; fa.add(hnd);
+      return { sh, ua, el, fa };
+    }
+    gArmL = buildArm(-1);
+    gArmR = buildArm(1);
+
+    // Ground
+    const grid = new THREE.GridHelper(5,10,0x1144aa,0x0a2255);
+    grid.position.y=-1.1; scene.add(grid);
+
+    applyPose(DEF);
+
+    // Render loop — use performance.now() for reliable timing
+    function renderLoop() {
+      requestAnimationFrame(renderLoop);
+      if (!guideOpen) return;
+
+      const now = performance.now();
+
+      // Advance queue
+      if (gQueue.length && (now - gLastStep) >= 680) {
+        const item = gQueue.shift();
+        if (item.reset) {
+          gCur={...gTgt}; gTgt={...DEF};
+          gAnimT=0; gAnimStart=now;
+        } else if (!item.pause) {
+          gCur={...gTgt}; gTgt={...item.pose};
+          gAnimT=0; gAnimStart=now;
+        }
+        gLastStep = now;
+      }
+
+      // Smooth interpolation
+      if (gAnimT < 1) {
+        const t = Math.min((now - gAnimStart) / 320, 1);
+        gAnimT = t;
+        const out={};
+        for (const k in gCur) out[k] = lerp(gCur[k], gTgt[k], ss(t));
+        applyPose(out);
+      }
+
+      // Gentle idle sway
+      if (!gQueue.length && gAnimT >= 1) {
+        gRoot.rotation.y = Math.sin(now * 0.0004) * 0.06;
+      }
+
+      gRenderer.render(scene, camera);
+    }
+
+    requestAnimationFrame(renderLoop);
+
+  } catch(err) {
+    document.getElementById('guide-status').textContent = '⚠️ 3D error: ' + err.message;
+  }
 }
 
 // Guide UI
 function openGuide() {
   document.getElementById('guide-overlay').classList.add('open');
   guideOpen = true;
-  initGuide();
   buildWordBank();
+  // Small delay so the modal is fully painted before WebGL init
+  setTimeout(initGuide, 80);
 }
 function closeGuide() {
   document.getElementById('guide-overlay').classList.remove('open');

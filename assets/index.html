@@ -228,6 +228,27 @@ body {
 }
 #call-conn-status { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0; }
 
+/* Call speech bar */
+#call-speech-bar {
+  display: flex; gap: 12px; align-items: stretch;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 16px; flex-shrink: 0;
+}
+#call-speech-left {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; flex-shrink: 0;
+}
+#call-speech-left span { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; }
+#call-partner-speech-box {
+  flex: 1; font-size: 20px; font-weight: 600; line-height: 1.5;
+  color: var(--text); background: var(--bg);
+  border-radius: 8px; padding: 12px 16px;
+  border: 1px solid var(--border2);
+  min-height: 56px; display: flex; align-items: center; overflow: hidden;
+  word-break: break-word;
+}
+#call-partner-speech-box.placeholder { color: var(--text-dim); font-size: 14px; font-weight: 400; }
+
 /* ── Call Setup Modal ────────────────────────────────────────────── */
 #call-modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -454,6 +475,15 @@ body {
         <div class="call-sign-overlay" id="remote-sign-overlay" style="color:var(--green)"></div>
       </div>
     </div>
+    <!-- Speech bar: hearing person speaks, deaf person reads -->
+    <div id="call-speech-bar">
+      <div id="call-speech-left">
+        <button class="btn-mic" id="call-mic-btn" onclick="toggleCallMic()">🎤 Speak</button>
+        <span id="call-mic-status">Mic off</span>
+      </div>
+      <div id="call-partner-speech-box" class="placeholder">Partner's speech will appear here — they can talk and you'll read it</div>
+    </div>
+
     <div id="call-bottom">
       <div class="panel-label" style="padding:0 0 4px;border:none;">Live Transcript</div>
       <div id="call-transcript-box"></div>
@@ -771,6 +801,20 @@ function initSocket() {
     if (d.label) appendCallTranscript('Partner', d.label, 'var(--green)');
   });
 
+  socket.on('peer-speech', d => {
+    const box = document.getElementById('call-partner-speech-box');
+    box.textContent = d.text;
+    box.classList.remove('placeholder');
+    if (d.isFinal) {
+      const span = document.createElement('span');
+      span.style.color = 'var(--green)';
+      span.textContent = `[Partner] "${d.text.trim()}"  `;
+      const tb = document.getElementById('call-transcript-box');
+      tb.appendChild(span);
+      tb.scrollTop = tb.scrollHeight;
+    }
+  });
+
   socket.on('peer-left', () => {
     document.getElementById('call-conn-status').textContent = '⚠️ Partner disconnected.';
     cleanupPeer();
@@ -881,9 +925,55 @@ function onCallConnected() {
   startCallLoop();
 }
 
+// ── Call speech (hearing person speaks → deaf person reads) ───────────
+let callMicOn = false, callRecognition = null;
+
+function toggleCallMic() {
+  if (!SR) { alert('Speech recognition requires Chrome or Edge.'); return; }
+  callMicOn ? stopCallMic() : startCallMic();
+}
+function startCallMic() {
+  callRecognition = new SR();
+  callRecognition.continuous = true;
+  callRecognition.interimResults = true;
+  callRecognition.lang = 'en-US';
+  callRecognition.onstart = () => {
+    callMicOn = true;
+    document.getElementById('call-mic-btn').textContent = '⏹ Stop';
+    document.getElementById('call-mic-btn').classList.add('on');
+    document.getElementById('call-mic-status').textContent = 'Listening…';
+  };
+  callRecognition.onresult = e => {
+    let final = '', interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t + ' '; else interim += t;
+    }
+    const text = (final || interim).trim();
+    if (text && socket && roomId) {
+      socket.emit('call-speech', { roomId, text, isFinal: !!final });
+    }
+  };
+  callRecognition.onerror = e => { if (e.error !== 'no-speech') console.warn('speech err', e.error); };
+  callRecognition.onend = () => {
+    if (callMicOn) { try { callRecognition.start(); } catch(_){} }
+    else {
+      document.getElementById('call-mic-btn').textContent = '🎤 Speak';
+      document.getElementById('call-mic-btn').classList.remove('on');
+      document.getElementById('call-mic-status').textContent = 'Mic off';
+    }
+  };
+  callRecognition.start();
+}
+function stopCallMic() {
+  callMicOn = false;
+  if (callRecognition) callRecognition.stop();
+}
+
 function endCall() {
   callActive = false;
   if (callLoopTimer) { clearInterval(callLoopTimer); callLoopTimer = null; }
+  if (callMicOn) stopCallMic();
   cleanupPeer();
   if (localCallStream) { localCallStream.getTracks().forEach(t => t.stop()); localCallStream = null; }
   document.getElementById('call-screen').classList.remove('active');
@@ -893,6 +983,9 @@ function endCall() {
   document.getElementById('remote-sign-overlay').textContent = '';
   document.getElementById('call-transcript-box').innerHTML   = '';
   document.getElementById('remote-call-video').srcObject     = null;
+  const spBox = document.getElementById('call-partner-speech-box');
+  spBox.textContent = 'Partner\'s speech will appear here — they can talk and you\'ll read it';
+  spBox.classList.add('placeholder');
 }
 
 function cleanupPeer() { if (pc) { pc.close(); pc = null; } }
@@ -966,15 +1059,10 @@ const KNOWN_WORDS = [
   'WHERE','WHAT','NAME','EAT','DRINK','FAMILY','FRIEND','HOME',
 ];
 
-// Lifeprint URL builder — animated GIFs of real people signing
+// Use our own server as a proxy — bypasses hotlink protection on Lifeprint
 function getSignImgUrl(key) {
-  if (key.length === 1 && /[A-Z]/.test(key)) {
-    // Fingerspelling alphabet
-    return `https://www.lifeprint.com/asl101/fingerspelling/abc-gifs/${key.toLowerCase()}.gif`;
-  }
-  // Common words — try lifeprint animated gifs
   const word = key.toLowerCase().replace(/\s+/g, '');
-  return `https://www.lifeprint.com/asl101/gifs-animated/${word}.gif`;
+  return `/sign-image?word=${encodeURIComponent(word)}`;
 }
 
 function onGuideImgLoad() {

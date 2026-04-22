@@ -1,22 +1,29 @@
 """
-Flask web server — serves the web UI and handles frame prediction.
-Browser sends camera frames → we run MediaPipe + model → return result.
+Flask web server — serves the web UI, handles frame prediction, and WebRTC signaling.
 """
 
 import base64
 import os
+import random
 import socket
+import string
 import threading
 
 import cv2
 import numpy as np
 from flask import Flask, jsonify, request, send_from_directory
+from flask_socketio import SocketIO, emit, join_room
 
 _ASSETS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
 
 app      = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='*')
 _pred    = None
 _lock    = threading.Lock()
+
+# room_id -> set of session IDs
+_rooms      = {}
+_rooms_lock = threading.Lock()
 
 import logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -30,7 +37,17 @@ def _get_predictor():
     return _pred
 
 
-# ── Routes ────────────────────────────────────────────────────────────────────
+def _make_room_id():
+    """Generate a unique 6-char room code and reserve it."""
+    with _rooms_lock:
+        while True:
+            rid = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            if rid not in _rooms:
+                _rooms[rid] = set()
+                return rid
+
+
+# ── HTTP Routes ────────────────────────────────────────────────────────────────
 
 @app.route('/')
 def index():
@@ -39,7 +56,6 @@ def index():
 
 @app.route('/info')
 def info():
-    """Return the LAN URL so the browser can display a share link."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 80))
@@ -50,12 +66,17 @@ def info():
     return jsonify({'local_url': f'http://{local_ip}:5055'})
 
 
+@app.route('/create-room')
+def create_room():
+    rid = _make_room_id()
+    return jsonify({'roomId': rid})
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    data   = request.get_json(force=True, silent=True) or {}
+    data    = request.get_json(force=True, silent=True) or {}
     img_b64 = data.get('image', '')
 
-    # Strip data-URL prefix
     if ',' in img_b64:
         img_b64 = img_b64.split(',')[1]
 
@@ -80,8 +101,8 @@ def predict():
     with _lock:
         annotated, label, conf = predictor.process_frame(frame)
 
-    _, buf    = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 82])
-    ann_b64   = 'data:image/jpeg;base64,' + base64.b64encode(buf).decode()
+    _, buf  = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 82])
+    ann_b64 = 'data:image/jpeg;base64,' + base64.b64encode(buf).decode()
 
     return jsonify({
         'label':      label,
@@ -90,7 +111,87 @@ def predict():
     })
 
 
+# ── Socket.IO — WebRTC Signaling ───────────────────────────────────────────────
+
+@socketio.on('join-room')
+def on_join(data):
+    rid = (data.get('roomId') or '').strip().upper()
+    if not rid:
+        emit('call-error', {'msg': 'Invalid room code.'})
+        return
+
+    with _rooms_lock:
+        if rid not in _rooms:
+            emit('call-error', {'msg': 'Room not found. Check the code.'})
+            return
+        if len(_rooms[rid]) >= 2:
+            emit('call-error', {'msg': 'Room is full (max 2 people).'})
+            return
+        _rooms[rid].add(request.sid)
+        count         = len(_rooms[rid])
+        initiator_sid = list(_rooms[rid] - {request.sid})[0] if count == 2 else None
+
+    join_room(rid)
+    emit('room-joined', {'roomId': rid, 'count': count})
+
+    if initiator_sid:
+        # Tell the first person (who is waiting) to create the WebRTC offer
+        emit('peer-ready', {}, to=initiator_sid)
+
+
+@socketio.on('offer')
+def on_offer(data):
+    rid = data.get('roomId', '')
+    with _rooms_lock:
+        others = list(_rooms.get(rid, set()) - {request.sid})
+    for sid in others:
+        emit('offer', data, to=sid)
+
+
+@socketio.on('answer')
+def on_answer(data):
+    rid = data.get('roomId', '')
+    with _rooms_lock:
+        others = list(_rooms.get(rid, set()) - {request.sid})
+    for sid in others:
+        emit('answer', data, to=sid)
+
+
+@socketio.on('ice-candidate')
+def on_ice(data):
+    rid = data.get('roomId', '')
+    with _rooms_lock:
+        others = list(_rooms.get(rid, set()) - {request.sid})
+    for sid in others:
+        emit('ice-candidate', data, to=sid)
+
+
+@socketio.on('sign-update')
+def on_sign_update(data):
+    rid = data.get('roomId', '')
+    with _rooms_lock:
+        others = list(_rooms.get(rid, set()) - {request.sid})
+    for sid in others:
+        emit('peer-sign', data, to=sid)
+
+
+@socketio.on('disconnect')
+def on_disconnect():
+    others = []
+    with _rooms_lock:
+        for rid in list(_rooms.keys()):
+            if request.sid in _rooms[rid]:
+                _rooms[rid].discard(request.sid)
+                others = list(_rooms[rid])
+                if not _rooms[rid]:
+                    del _rooms[rid]
+                break
+    for sid in others:
+        emit('peer-left', {}, to=sid)
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def run(host='0.0.0.0', port=5055):
-    app.run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
+    socketio.run(app, host=host, port=port, debug=False,
+                 use_reloader=False, allow_unsafe_werkzeug=True)

@@ -74,6 +74,16 @@ body {
   box-shadow: 0 0 48px #00BFFF88, 0 0 96px #00BFFF33;
   animation: none; transform: scale(1.04);
 }
+.call-land-btn {
+  padding: 14px 56px; font-size: 17px; font-weight: 700;
+  letter-spacing: 3px; background: transparent; color: var(--green);
+  border: 2px solid var(--green); border-radius: 50px;
+  cursor: pointer; text-transform: uppercase; transition: all 0.25s;
+}
+.call-land-btn:hover {
+  background: #3fb95022; transform: scale(1.03);
+  box-shadow: 0 0 30px #3fb95044;
+}
 @keyframes glow {
   0%,100% { box-shadow: 0 0 10px #00BFFF33; }
   50%      { box-shadow: 0 0 30px #00BFFF88, 0 0 60px #00BFFF22; }
@@ -102,14 +112,15 @@ body {
 }
 .icon-btn:hover { background: var(--btn-hover); border-color: var(--accent); }
 .icon-btn.active-btn { border-color: var(--accent); color: var(--accent); }
+.icon-btn.danger { border-color: var(--red); color: var(--red); }
+.icon-btn.danger:hover { background: #f8514922; }
 
-/* Panels */
+/* Solo panels */
 #panels {
   flex: 1; display: grid; grid-template-columns: 620px 1fr;
   gap: 14px; padding: 14px; overflow: hidden;
 }
 
-/* Camera panel */
 #cam-panel {
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
@@ -125,7 +136,6 @@ body {
   transform: scaleX(-1); background: #090d13;
 }
 
-/* Right column */
 #right-col { display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
 .panel {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
@@ -133,7 +143,6 @@ body {
   flex: 1; overflow: hidden; min-height: 0;
 }
 
-/* Sign panel */
 #sign-big {
   font-size: 62px; font-weight: 800; color: var(--accent);
   text-align: center; line-height: 1; padding: 4px 0 2px;
@@ -158,7 +167,6 @@ body {
 }
 .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-shrink: 0; flex-wrap: wrap; }
 
-/* Speech panel */
 #speech-display {
   flex: 1; min-height: 0; background: var(--bg); border: 1px solid var(--border2);
   border-radius: 8px; padding: 12px; font-size: 19px; font-weight: 600; color: var(--text);
@@ -167,7 +175,6 @@ body {
 }
 #speech-display.placeholder { color: var(--text-dim); font-size: 14px; font-weight: 400; }
 .interim-text { color: var(--text-muted); }
-
 .mic-row { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
 #mic-status { font-size: 12px; color: var(--text-muted); min-width: 80px; }
 
@@ -192,6 +199,105 @@ body {
   font-size: 13px; font-weight: 700; transition: all 0.18s;
 }
 .btn-accent:hover { opacity: 0.85; }
+
+/* ── Video Call Screen ───────────────────────────────────────────── */
+#call-screen {
+  display: none; flex: 1; flex-direction: column;
+  gap: 12px; padding: 14px; overflow: hidden;
+}
+#call-screen.active { display: flex; }
+
+#call-videos {
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; min-height: 0;
+}
+
+.call-vid-wrap {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.call-vid-wrap video {
+  flex: 1; width: 100%; object-fit: cover; background: #090d13; display: block;
+}
+.call-person-label {
+  position: absolute; top: 10px; left: 12px;
+  background: #00000088; color: #fff; backdrop-filter: blur(4px);
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: 1px; z-index: 2;
+}
+.call-sign-overlay {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  background: #000000bb; color: var(--accent);
+  padding: 6px 20px; border-radius: 20px;
+  font-size: 24px; font-weight: 800; letter-spacing: 2px;
+  white-space: nowrap; min-width: 60px; text-align: center;
+  transition: opacity 0.2s; z-index: 2; pointer-events: none;
+}
+
+#call-bottom {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  flex-shrink: 0; max-height: 120px;
+}
+#call-transcript-box {
+  flex: 1; overflow-y: auto; font-size: 14px;
+  line-height: 1.6; word-break: break-word; min-height: 0;
+}
+#call-conn-status {
+  font-size: 11px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0;
+}
+
+/* ── Call Setup Modal ────────────────────────────────────────────── */
+#call-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: #00000099; z-index: 200;
+  align-items: center; justify-content: center;
+}
+#call-modal-overlay.open { display: flex; }
+
+#call-setup-modal {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px; width: 420px; max-width: 95vw;
+  position: relative; box-shadow: 0 24px 64px #00000088;
+}
+
+.call-modal-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.call-modal-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+.call-divider {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--text-dim); font-size: 12px; margin: 18px 0;
+}
+.call-divider::before, .call-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+#call-setup-err {
+  color: var(--red); font-size: 13px; min-height: 20px; margin-top: 8px;
+}
+
+#call-waiting-view { display: none; text-align: center; }
+#call-setup-view   { display: block; }
+
+.room-code-big {
+  font-size: 40px; font-weight: 800; letter-spacing: 10px;
+  color: var(--accent); margin: 14px 0; font-family: monospace;
+}
+.waiting-spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 1s linear infinite; margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.link-row { display: flex; gap: 8px; margin: 8px 0 16px; }
+.link-row input {
+  flex: 1; padding: 8px 12px; border-radius: 8px;
+  border: 1px solid var(--border2); background: var(--bg);
+  color: var(--text); font-size: 12px; font-family: monospace; outline: none;
+}
 
 /* ── Sign Guide Modal ────────────────────────────────────────────── */
 #guide-overlay {
@@ -266,6 +372,8 @@ body {
   #guide-canvas { width: 220px; height: 270px; }
   .topbar-right { gap: 4px; }
   .icon-btn { padding: 5px 9px; font-size: 12px; }
+  #call-videos { grid-template-columns: 1fr; }
+  #call-screen { overflow-y: auto; }
 }
 </style>
 </head>
@@ -274,14 +382,15 @@ body {
 <!-- ── Landing ────────────────────────────────────────────────────── -->
 <div id="landing">
   <div class="hero-title">Sign<span>AI</span></div>
-  <div class="hero-sub">Two people, one screen — signing and speaking, understood.</div>
+  <div class="hero-sub">Sign language translation — live and together.</div>
   <div class="hero-features">
     <span>Real-time signing</span>
     <span>Live speech</span>
-    <span>Sign guide</span>
+    <span>Video call</span>
   </div>
-  <button class="activate-btn" onclick="activate()">&#9889; Activate</button>
-  <div class="hint">Camera &amp; microphone access will be requested</div>
+  <button class="activate-btn" onclick="activate()">&#9889; Solo Mode</button>
+  <button class="call-land-btn" onclick="openCallModal()">📹 Video Call</button>
+  <div class="hint">Camera access will be requested</div>
 </div>
 
 <!-- ── App ───────────────────────────────────────────────────────── -->
@@ -290,13 +399,16 @@ body {
     <span class="brand">SignAI</span>
     <div class="topbar-right">
       <span class="share-url">Share: <a id="share-link" href="#" target="_blank">loading…</a></span>
-      <button class="icon-btn" id="copy-btn"   onclick="copyLink()">📋 Copy Link</button>
-      <button class="icon-btn"                  onclick="openGuide()">👋 Sign Guide</button>
-      <button class="icon-btn" id="sound-btn"  onclick="toggleSound()">🔊 Sound On</button>
-      <button class="icon-btn" id="theme-btn"  onclick="toggleTheme()">🌙 Dark</button>
+      <button class="icon-btn" id="copy-btn"    onclick="copyLink()">📋 Copy Link</button>
+      <button class="icon-btn"                   onclick="openCallModal()">📹 Video Call</button>
+      <button class="icon-btn"                   onclick="openGuide()">👋 Sign Guide</button>
+      <button class="icon-btn" id="sound-btn"   onclick="toggleSound()">🔊 Sound On</button>
+      <button class="icon-btn" id="theme-btn"   onclick="toggleTheme()">🌙 Dark</button>
+      <button class="icon-btn danger" id="end-call-btn" onclick="endCall()" style="display:none;">📵 End Call</button>
     </div>
   </div>
 
+  <!-- Solo panels -->
   <div id="panels">
     <div id="cam-panel">
       <div class="panel-label">Deaf Person — Camera</div>
@@ -304,7 +416,6 @@ body {
     </div>
 
     <div id="right-col">
-      <!-- Sign detection -->
       <div class="panel">
         <div class="panel-label">Signing → Text</div>
         <div id="sign-big">—</div>
@@ -317,7 +428,6 @@ body {
         </div>
       </div>
 
-      <!-- Speech -->
       <div class="panel">
         <div class="panel-label">Speech → Text (for deaf person)</div>
         <div id="speech-display" class="placeholder">Press mic to start speaking</div>
@@ -327,6 +437,71 @@ body {
           <button class="btn btn-ghost" onclick="clearSpeech()">Clear</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Call screen (replaces panels during a call) -->
+  <div id="call-screen">
+    <div id="call-videos">
+      <div class="call-vid-wrap">
+        <div class="call-person-label">You</div>
+        <video id="local-call-video" autoplay playsinline muted style="transform:scaleX(-1)"></video>
+        <div class="call-sign-overlay" id="local-sign-overlay"></div>
+      </div>
+      <div class="call-vid-wrap">
+        <div class="call-person-label">Partner</div>
+        <video id="remote-call-video" autoplay playsinline></video>
+        <div class="call-sign-overlay" id="remote-sign-overlay" style="color:var(--green)"></div>
+      </div>
+    </div>
+    <div id="call-bottom">
+      <div class="panel-label" style="padding:0 0 4px;border:none;">Live Transcript</div>
+      <div id="call-transcript-box"></div>
+      <div id="call-conn-status">Connecting…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Call Setup Modal ───────────────────────────────────────────── -->
+<div id="call-modal-overlay" onclick="closeBgCall(event)">
+  <div id="call-setup-modal">
+    <button class="modal-close" onclick="closeCallModal()">×</button>
+
+    <!-- Step 1: create or join -->
+    <div id="call-setup-view">
+      <div class="call-modal-title">📹 Video Call</div>
+      <div class="call-modal-sub">Sign with anyone, anywhere in the world</div>
+
+      <button class="btn-accent" style="width:100%;padding:13px;font-size:15px;" onclick="createRoom()">
+        ➕ Create a Room
+      </button>
+
+      <div class="call-divider">or join with a code</div>
+
+      <div style="display:flex;gap:8px;">
+        <input id="join-code" placeholder="ABC123"
+               style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);
+                      background:var(--bg);color:var(--text);font-size:18px;font-family:monospace;
+                      letter-spacing:4px;text-transform:uppercase;outline:none;"
+               maxlength="6"
+               oninput="this.value=this.value.toUpperCase()"
+               onkeydown="if(event.key==='Enter')joinRoom()" />
+        <button class="btn-accent" style="padding:10px 18px;" onclick="joinRoom()">Join</button>
+      </div>
+      <div id="call-setup-err"></div>
+    </div>
+
+    <!-- Step 2: waiting for partner -->
+    <div id="call-waiting-view">
+      <div class="call-modal-title">Waiting for partner…</div>
+      <div class="call-modal-sub">Share the code or link below</div>
+      <div class="waiting-spinner"></div>
+      <div class="room-code-big" id="room-code-display"></div>
+      <div class="link-row">
+        <input id="room-link-input" readonly />
+        <button class="icon-btn" id="copy-room-btn" onclick="copyRoomLink()">📋 Copy</button>
+      </div>
+      <button class="btn btn-ghost" style="width:100%;" onclick="cancelCall()">Cancel</button>
     </div>
   </div>
 </div>
@@ -357,6 +532,7 @@ body {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
 // ── Config ─────────────────────────────────────────────────────────────
 const CONF_THRESHOLD = 0.75;
@@ -428,7 +604,7 @@ function playDetectionSound() {
   } catch(_) {}
 }
 
-// ── Activate ───────────────────────────────────────────────────────────
+// ── Solo Activate ──────────────────────────────────────────────────────
 async function activate() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -442,7 +618,7 @@ async function activate() {
   }
 }
 
-// ── Prediction loop ────────────────────────────────────────────────────
+// ── Solo Prediction loop ───────────────────────────────────────────────
 const capCanvas = document.createElement('canvas');
 const capCtx    = capCanvas.getContext('2d');
 
@@ -469,7 +645,6 @@ function handleResult(data) {
   if (data.error) { confBar.style.width = '0%'; return; }
   const label = data.label, conf = data.confidence || 0;
 
-  // Confidence bar colour: red → yellow → green
   confBar.style.width = (conf * 100).toFixed(0) + '%';
   confBar.style.backgroundColor =
     conf < 0.5 ? 'var(--red)' : conf < CONF_THRESHOLD ? 'var(--yellow)' : 'var(--green)';
@@ -536,6 +711,282 @@ function stopMic()    { micOn = false; if (recognition) recognition.stop(); }
 function clearSpeech(){ speechDisp.textContent = 'Press mic to start speaking'; speechDisp.classList.add('placeholder'); }
 
 // ─────────────────────────────────────────────────────────────────────────
+//  VIDEO CALL — WebRTC + Socket.IO signaling
+// ─────────────────────────────────────────────────────────────────────────
+const ICE_CONFIG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+  ]
+};
+
+let socket          = null;
+let pc              = null;   // RTCPeerConnection
+let roomId          = null;
+let callActive      = false;
+let localCallStream = null;
+let callLoopTimer   = null;
+let callPending     = false;
+let lastCallEntry   = null, lastCallEntryTs = 0;
+
+const callCapCanvas = document.createElement('canvas');
+const callCapCtx    = callCapCanvas.getContext('2d');
+
+// ── Socket init ────────────────────────────────────────────────────────
+function initSocket() {
+  if (socket) return;
+  socket = io();
+
+  socket.on('room-joined', d => {
+    roomId = d.roomId;
+    showWaitingView(roomId);
+  });
+
+  // First person in room gets this when second person joins — they create the offer
+  socket.on('peer-ready', async () => {
+    pc = createPC();
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    socket.emit('offer', { roomId, offer });
+  });
+
+  socket.on('offer', async d => {
+    pc = createPC();
+    await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    socket.emit('answer', { roomId, answer });
+  });
+
+  socket.on('answer', async d => {
+    if (pc) await pc.setRemoteDescription(new RTCSessionDescription(d.answer)).catch(()=>{});
+  });
+
+  socket.on('ice-candidate', d => {
+    if (pc && d.candidate) pc.addIceCandidate(new RTCIceCandidate(d.candidate)).catch(()=>{});
+  });
+
+  socket.on('peer-sign', d => {
+    const el = document.getElementById('remote-sign-overlay');
+    el.textContent = d.label || '';
+    if (d.label) appendCallTranscript('Partner', d.label, 'var(--green)');
+  });
+
+  socket.on('peer-left', () => {
+    document.getElementById('call-conn-status').textContent = '⚠️ Partner disconnected.';
+    cleanupPeer();
+    document.getElementById('end-call-btn').textContent = '✕ Close';
+  });
+
+  socket.on('call-error', d => {
+    document.getElementById('call-setup-err').textContent = d.msg;
+  });
+}
+
+// ── RTCPeerConnection factory ──────────────────────────────────────────
+function createPC() {
+  const p = new RTCPeerConnection(ICE_CONFIG);
+
+  if (localCallStream) {
+    localCallStream.getTracks().forEach(t => p.addTrack(t, localCallStream));
+  }
+
+  p.ontrack = e => {
+    const remVid = document.getElementById('remote-call-video');
+    remVid.srcObject = e.streams[0];
+  };
+
+  p.onicecandidate = e => {
+    if (e.candidate && socket) {
+      socket.emit('ice-candidate', { roomId, candidate: e.candidate });
+    }
+  };
+
+  p.onconnectionstatechange = () => {
+    if (p.connectionState === 'connected') onCallConnected();
+    if (p.connectionState === 'failed' || p.connectionState === 'disconnected') {
+      document.getElementById('call-conn-status').textContent = '⚠️ Connection lost.';
+    }
+  };
+
+  return p;
+}
+
+// ── Call flow ──────────────────────────────────────────────────────────
+function openCallModal() {
+  document.getElementById('call-setup-view').style.display   = '';
+  document.getElementById('call-waiting-view').style.display = 'none';
+  document.getElementById('call-setup-err').textContent      = '';
+  document.getElementById('call-modal-overlay').classList.add('open');
+
+  // Pre-fill code if URL has ?room=
+  const urlRoom = new URLSearchParams(window.location.search).get('room');
+  if (urlRoom) document.getElementById('join-code').value = urlRoom.toUpperCase();
+}
+
+function closeCallModal() {
+  if (!callActive) document.getElementById('call-modal-overlay').classList.remove('open');
+}
+
+function closeBgCall(e) {
+  if (e.target === document.getElementById('call-modal-overlay') && !callActive) closeCallModal();
+}
+
+async function startLocalStream() {
+  if (localCallStream) return;
+  localCallStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  const v = document.getElementById('local-call-video');
+  v.srcObject = localCallStream;
+}
+
+async function createRoom() {
+  document.getElementById('call-setup-err').textContent = '';
+  try {
+    await startLocalStream();
+    initSocket();
+    const data = await fetch('/create-room').then(r => r.json());
+    socket.emit('join-room', { roomId: data.roomId });
+  } catch(err) {
+    document.getElementById('call-setup-err').textContent = 'Camera error: ' + err.message;
+  }
+}
+
+async function joinRoom() {
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
+  if (code.length < 2) {
+    document.getElementById('call-setup-err').textContent = 'Enter a valid room code.';
+    return;
+  }
+  document.getElementById('call-setup-err').textContent = '';
+  try {
+    await startLocalStream();
+    initSocket();
+    socket.emit('join-room', { roomId: code });
+  } catch(err) {
+    document.getElementById('call-setup-err').textContent = 'Camera error: ' + err.message;
+  }
+}
+
+function showWaitingView(rid) {
+  document.getElementById('call-setup-view').style.display   = 'none';
+  document.getElementById('call-waiting-view').style.display = '';
+  document.getElementById('room-code-display').textContent   = rid;
+  document.getElementById('room-link-input').value = window.location.origin + '/?room=' + rid;
+}
+
+function copyRoomLink() {
+  navigator.clipboard.writeText(document.getElementById('room-link-input').value).then(() => {
+    const b = document.getElementById('copy-room-btn');
+    b.textContent = '✅ Copied!';
+    setTimeout(() => b.textContent = '📋 Copy', 2000);
+  });
+}
+
+function cancelCall() {
+  cleanupPeer();
+  if (localCallStream) {
+    localCallStream.getTracks().forEach(t => t.stop());
+    localCallStream = null;
+  }
+  document.getElementById('call-modal-overlay').classList.remove('open');
+}
+
+function onCallConnected() {
+  callActive = true;
+  document.getElementById('call-modal-overlay').classList.remove('open');
+  document.getElementById('panels').style.display      = 'none';
+  document.getElementById('call-screen').classList.add('active');
+  document.getElementById('end-call-btn').style.display = '';
+  document.getElementById('end-call-btn').textContent   = '📵 End Call';
+  document.getElementById('call-conn-status').textContent = '🟢 Connected';
+  // Activate app shell if not already active
+  document.getElementById('landing').classList.add('gone');
+  document.getElementById('app').classList.add('active');
+  startCallLoop();
+}
+
+function endCall() {
+  callActive = false;
+  if (callLoopTimer) { clearInterval(callLoopTimer); callLoopTimer = null; }
+  cleanupPeer();
+  if (localCallStream) {
+    localCallStream.getTracks().forEach(t => t.stop());
+    localCallStream = null;
+  }
+  document.getElementById('call-screen').classList.remove('active');
+  document.getElementById('panels').style.display       = '';
+  document.getElementById('end-call-btn').style.display = 'none';
+  document.getElementById('local-sign-overlay').textContent  = '';
+  document.getElementById('remote-sign-overlay').textContent = '';
+  document.getElementById('call-transcript-box').innerHTML   = '';
+  document.getElementById('remote-call-video').srcObject     = null;
+}
+
+function cleanupPeer() {
+  if (pc) { pc.close(); pc = null; }
+}
+
+// ── Sign detection during call ─────────────────────────────────────────
+function startCallLoop() {
+  const callVid = document.getElementById('local-call-video');
+  callLoopTimer = setInterval(async () => {
+    if (!callActive || callPending || callVid.readyState < 2) return;
+    callPending = true;
+    callCapCanvas.width  = callVid.videoWidth  || 640;
+    callCapCanvas.height = callVid.videoHeight || 480;
+    callCapCtx.drawImage(callVid, 0, 0);
+    try {
+      const resp = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: callCapCanvas.toDataURL('image/jpeg', 0.82) }),
+      });
+      const data = await resp.json();
+      const lbl  = data.label, conf = data.confidence || 0;
+      if (lbl && conf >= CONF_THRESHOLD) {
+        document.getElementById('local-sign-overlay').textContent = lbl;
+        appendCallTranscript('You', lbl, 'var(--accent)');
+        if (socket && roomId) socket.emit('sign-update', { roomId, label: lbl });
+      } else {
+        document.getElementById('local-sign-overlay').textContent = '';
+      }
+    } catch(_) {}
+    callPending = false;
+  }, FRAME_MS);
+}
+
+function appendCallTranscript(who, label, color) {
+  const now = Date.now() / 1000;
+  const key = who + ':' + label;
+  if (key === lastCallEntry && (now - lastCallEntryTs) < REPEAT_DELAY) return;
+  lastCallEntry = key; lastCallEntryTs = now;
+  const box  = document.getElementById('call-transcript-box');
+  const span = document.createElement('span');
+  span.style.color = color;
+  span.textContent = `[${who}] ${label}  `;
+  box.appendChild(span);
+  box.scrollTop = box.scrollHeight;
+  playDetectionSound();
+}
+
+// Auto-open call modal if URL has ?room= param on landing
+(function checkUrlRoom() {
+  const urlRoom = new URLSearchParams(window.location.search).get('room');
+  if (!urlRoom) return;
+  // Show a join-call button on landing
+  const btn = document.createElement('button');
+  btn.className = 'call-land-btn';
+  btn.style.cssText = 'border-color:var(--accent);color:var(--accent);animation:glow 2.2s ease-in-out infinite;';
+  btn.textContent = '📹 Join Call — ' + urlRoom.toUpperCase();
+  btn.onclick = () => {
+    document.getElementById('join-code').value = urlRoom.toUpperCase();
+    openCallModal();
+    joinRoom();
+  };
+  document.getElementById('landing').appendChild(btn);
+})();
+
+// ─────────────────────────────────────────────────────────────────────────
 //  SIGN GUIDE — Three.js 3D Avatar
 // ─────────────────────────────────────────────────────────────────────────
 const DEF = { sLx:0, sLz:.32, eLx:.10, eLz:-.12, sRx:0, sRz:-.32, eRx:.10, eRz:.12 };
@@ -566,14 +1017,12 @@ const SIGNS = {
   FRIEND:      [{sLx:-.22,sLz:.42,eLx:.45,eLz:.20,sRx:-.22,sRz:-.42,eRx:.45,eRz:-.20},{sLx:-.28,sLz:.48,eLx:.50,eLz:.25,sRx:-.28,sRz:-.48,eRx:.50,eRz:-.25}],
   HOME:        [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.35,sRz:-.48,eRx:.45,eRz:.30},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.28,sRz:-.42,eRx:.38,eRz:.22}],
 };
-// Fingerspell all letters
 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch =>
   SIGNS[ch] = [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.52,eRx:.62,eRz:.42}]
 );
 
 const KNOWN_WORDS = Object.keys(SIGNS).filter(k => k.length > 1).sort();
 
-// Three.js state
 let gRenderer = null, gArmL, gArmR, gRoot;
 let gQueue = [], gLastStep = 0, gAnimT = 1, gAnimStart = 0;
 let gCur = {...DEF}, gTgt = {...DEF};
@@ -604,20 +1053,18 @@ function initGuide() {
 
     gRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
     gRenderer.setSize(W, H);
-    gRenderer.shadowMap.enabled = false; // disable for reliability
-    gRenderer.setPixelRatio(1);          // no HiDPI scaling issues
+    gRenderer.shadowMap.enabled = false;
+    gRenderer.setPixelRatio(1);
 
     const scene  = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 100);
-    gRenderer._scene  = scene;   // store refs for re-renders
+    gRenderer._scene  = scene;
     gRenderer._camera = camera;
 
     scene.background = new THREE.Color(0x0d1b2a);
-
     camera.position.set(0, 0.4, 4.8);
     camera.lookAt(0, 0, 0);
 
-    // Bright lights so avatar is clearly visible
     scene.add(new THREE.AmbientLight(0xffffff, 0.7));
     const key = new THREE.DirectionalLight(0xffffff, 1.2);
     key.position.set(2, 4, 3);
@@ -626,32 +1073,21 @@ function initGuide() {
     fill.position.set(-3, 2, -2);
     scene.add(fill);
 
-    // Bright visible materials
     const skin  = new THREE.MeshLambertMaterial({ color: 0x2288dd });
     const joint = new THREE.MeshLambertMaterial({ color: 0x0055aa });
     const headM = new THREE.MeshLambertMaterial({ color: 0x1166cc });
     const eyeM  = new THREE.MeshLambertMaterial({ color: 0x00eeff, emissive: 0x004466 });
 
-    function cyl(rt,rb,h,m) {
-      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,12), m);
-      return mesh;
-    }
-    function ball(r,m) {
-      return new THREE.Mesh(new THREE.SphereGeometry(r,12,12), m);
-    }
+    function cyl(rt,rb,h,m) { return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,12), m); }
+    function ball(r,m)      { return new THREE.Mesh(new THREE.SphereGeometry(r,12,12), m); }
 
     gRoot = new THREE.Group();
     scene.add(gRoot);
 
-    // Body
     const torso = cyl(.21,.27,.75,skin); torso.position.y=0; gRoot.add(torso);
     const hd = ball(.25,headM); hd.position.y=.63; gRoot.add(hd);
     [-0.09,0.09].forEach(x=>{ const e=ball(.045,eyeM); e.position.set(x,.67,.23); gRoot.add(e); });
-
-    // Legs
-    [-0.15,0.15].forEach(side=>{
-      const leg = cyl(.09,.10,.50,skin); leg.position.set(side,-.63,0); gRoot.add(leg);
-    });
+    [-0.15,0.15].forEach(side=>{ const leg=cyl(.09,.10,.50,skin); leg.position.set(side,-.63,0); gRoot.add(leg); });
 
     function buildArm(side) {
       const sh = new THREE.Group(); sh.position.set(side*.33,.28,0); gRoot.add(sh);
@@ -668,20 +1104,16 @@ function initGuide() {
     gArmL = buildArm(-1);
     gArmR = buildArm(1);
 
-    // Ground
     const grid = new THREE.GridHelper(5,10,0x1144aa,0x0a2255);
     grid.position.y=-1.1; scene.add(grid);
 
     applyPose(DEF);
 
-    // Render loop — use performance.now() for reliable timing
     function renderLoop() {
       requestAnimationFrame(renderLoop);
       if (!guideOpen) return;
-
       const now = performance.now();
 
-      // Advance queue
       if (gQueue.length && (now - gLastStep) >= 680) {
         const item = gQueue.shift();
         if (item.reset) {
@@ -694,7 +1126,6 @@ function initGuide() {
         gLastStep = now;
       }
 
-      // Smooth interpolation
       if (gAnimT < 1) {
         const t = Math.min((now - gAnimStart) / 320, 1);
         gAnimT = t;
@@ -703,14 +1134,12 @@ function initGuide() {
         applyPose(out);
       }
 
-      // Gentle idle sway
       if (!gQueue.length && gAnimT >= 1) {
         gRoot.rotation.y = Math.sin(now * 0.0004) * 0.06;
       }
 
       gRenderer.render(scene, camera);
     }
-
     requestAnimationFrame(renderLoop);
 
   } catch(err) {
@@ -718,12 +1147,10 @@ function initGuide() {
   }
 }
 
-// Guide UI
 function openGuide() {
   document.getElementById('guide-overlay').classList.add('open');
   guideOpen = true;
   buildWordBank();
-  // Small delay so the modal is fully painted before WebGL init
   setTimeout(initGuide, 80);
 }
 function closeGuide() {

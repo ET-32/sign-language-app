@@ -73,28 +73,17 @@ def create_room():
     return jsonify({'roomId': rid})
 
 
-@app.route('/sign-image')
-def sign_image():
-    """Proxy ASL sign GIFs from Lifeprint, bypassing hotlink protection."""
-    word = (request.args.get('word') or '').lower().strip()
-    word_clean = ''.join(c for c in word if c.isalpha())
-    if not word_clean:
+@app.route('/signs/<letter>')
+def serve_sign(letter):
+    """Serve locally stored ASL fingerspelling GIFs."""
+    clean = ''.join(c for c in letter.lower() if c.isalpha())
+    if len(clean) != 1:
         return '', 404
-    if len(word_clean) == 1:
-        url = f'https://www.lifeprint.com/asl101/fingerspelling/abc-gifs/{word_clean}.gif'
-    else:
-        url = f'https://www.lifeprint.com/asl101/gifs-animated/{word_clean}.gif'
-    try:
-        req = _urllib.Request(url, headers={
-            'Referer': 'https://www.lifeprint.com/',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        })
-        with _urllib.urlopen(req, timeout=8) as resp:
-            if resp.status == 200:
-                return Response(resp.read(), mimetype='image/gif',
-                                headers={'Cache-Control': 'public, max-age=3600'})
-    except Exception:
-        pass
+    signs_dir = os.path.join(_ASSETS, 'signs')
+    fname = clean + '.gif'
+    if os.path.exists(os.path.join(signs_dir, fname)):
+        return send_from_directory(signs_dir, fname, mimetype='image/gif',
+                                   max_age=86400)
     return '', 404
 
 

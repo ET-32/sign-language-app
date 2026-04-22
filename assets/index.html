@@ -120,7 +120,6 @@ body {
   flex: 1; display: grid; grid-template-columns: 620px 1fr;
   gap: 14px; padding: 14px; overflow: hidden;
 }
-
 #cam-panel {
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
@@ -135,14 +134,12 @@ body {
   object-fit: cover; display: block;
   transform: scaleX(-1); background: #090d13;
 }
-
 #right-col { display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
 .panel {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
   padding: 16px; display: flex; flex-direction: column;
   flex: 1; overflow: hidden; min-height: 0;
 }
-
 #sign-big {
   font-size: 62px; font-weight: 800; color: var(--accent);
   text-align: center; line-height: 1; padding: 4px 0 2px;
@@ -166,7 +163,6 @@ body {
   line-height: 1.7; overflow-y: auto; word-break: break-word;
 }
 .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-shrink: 0; flex-wrap: wrap; }
-
 #speech-display {
   flex: 1; min-height: 0; background: var(--bg); border: 1px solid var(--border2);
   border-radius: 8px; padding: 12px; font-size: 19px; font-weight: 600; color: var(--text);
@@ -178,26 +174,14 @@ body {
 .mic-row { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
 #mic-status { font-size: 12px; color: var(--text-muted); min-width: 80px; }
 
-/* Buttons */
-.btn {
-  padding: 7px 16px; border-radius: 8px; border: none;
-  cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.18s;
-}
+.btn { padding: 7px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.18s; }
 .btn-ghost { background: var(--btn); color: var(--text-muted); }
 .btn-ghost:hover { background: var(--btn-hover); color: var(--text); }
-.btn-mic {
-  padding: 8px 18px; background: #1f6aa5; color: #fff;
-  border-radius: 8px; border: none; cursor: pointer;
-  font-size: 13px; font-weight: 600; transition: all 0.18s;
-}
+.btn-mic { padding: 8px 18px; background: #1f6aa5; color: #fff; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.18s; }
 .btn-mic:hover { background: #144870; }
 .btn-mic.on { background: #6b0000; }
 .btn-mic.on:hover { background: #4a0000; }
-.btn-accent {
-  padding: 8px 18px; border-radius: 8px; border: none;
-  background: var(--accent); color: #000; cursor: pointer;
-  font-size: 13px; font-weight: 700; transition: all 0.18s;
-}
+.btn-accent { padding: 8px 18px; border-radius: 8px; border: none; background: var(--accent); color: #000; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.18s; }
 .btn-accent:hover { opacity: 0.85; }
 
 /* ── Video Call Screen ───────────────────────────────────────────── */
@@ -206,12 +190,10 @@ body {
   gap: 12px; padding: 14px; overflow: hidden;
 }
 #call-screen.active { display: flex; }
-
 #call-videos {
   flex: 1; display: grid; grid-template-columns: 1fr 1fr;
   gap: 12px; min-height: 0;
 }
-
 .call-vid-wrap {
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: 12px; position: relative; overflow: hidden;
@@ -232,9 +214,8 @@ body {
   padding: 6px 20px; border-radius: 20px;
   font-size: 24px; font-weight: 800; letter-spacing: 2px;
   white-space: nowrap; min-width: 60px; text-align: center;
-  transition: opacity 0.2s; z-index: 2; pointer-events: none;
+  z-index: 2; pointer-events: none;
 }
-
 #call-bottom {
   background: var(--bg2); border: 1px solid var(--border);
   border-radius: 12px; padding: 12px 16px;
@@ -245,9 +226,7 @@ body {
   flex: 1; overflow-y: auto; font-size: 14px;
   line-height: 1.6; word-break: break-word; min-height: 0;
 }
-#call-conn-status {
-  font-size: 11px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0;
-}
+#call-conn-status { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0; }
 
 /* ── Call Setup Modal ────────────────────────────────────────────── */
 #call-modal-overlay {
@@ -256,48 +235,50 @@ body {
   align-items: center; justify-content: center;
 }
 #call-modal-overlay.open { display: flex; }
-
 #call-setup-modal {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 16px; padding: 32px; width: 420px; max-width: 95vw;
-  position: relative; box-shadow: 0 24px 64px #00000088;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 32px; width: 440px; max-width: 95vw;
+  position: relative; box-shadow: 0 24px 64px #000000aa;
+  color: var(--text);
 }
-
-.call-modal-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.call-modal-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
 .call-modal-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
-
 .call-divider {
   display: flex; align-items: center; gap: 10px;
   color: var(--text-dim); font-size: 12px; margin: 18px 0;
 }
-.call-divider::before, .call-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
-}
-
-#call-setup-err {
-  color: var(--red); font-size: 13px; min-height: 20px; margin-top: 8px;
-}
-
-#call-waiting-view { display: none; text-align: center; }
-#call-setup-view   { display: block; }
-
+.call-divider::before, .call-divider::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+#call-setup-err { color: var(--red); font-size: 13px; min-height: 20px; margin-top: 10px; }
 .room-code-big {
-  font-size: 40px; font-weight: 800; letter-spacing: 10px;
-  color: var(--accent); margin: 14px 0; font-family: monospace;
+  font-size: 42px; font-weight: 800; letter-spacing: 10px;
+  color: var(--accent); margin: 14px 0 4px; font-family: monospace; text-align: center;
 }
 .waiting-spinner {
   width: 36px; height: 36px; border: 3px solid var(--border);
   border-top-color: var(--accent); border-radius: 50%;
-  animation: spin 1s linear infinite; margin: 0 auto 14px;
+  animation: spin 1s linear infinite; margin: 4px auto 14px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-.link-row { display: flex; gap: 8px; margin: 8px 0 16px; }
+.link-row { display: flex; gap: 8px; margin: 10px 0 14px; }
 .link-row input {
   flex: 1; padding: 8px 12px; border-radius: 8px;
   border: 1px solid var(--border2); background: var(--bg);
   color: var(--text); font-size: 12px; font-family: monospace; outline: none;
 }
+.code-input {
+  width: 100%; padding: 12px 16px; border-radius: 8px;
+  border: 1px solid var(--border2); background: var(--bg);
+  color: var(--text); font-size: 22px; font-family: monospace;
+  letter-spacing: 6px; text-align: center; outline: none; text-transform: uppercase;
+  transition: border 0.2s;
+}
+.code-input:focus { border-color: var(--accent); }
+.modal-close {
+  position: absolute; top: 14px; right: 18px;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 24px; cursor: pointer; line-height: 1; transition: color 0.2s;
+}
+.modal-close:hover { color: var(--text); }
 
 /* ── Sign Guide Modal ────────────────────────────────────────────── */
 #guide-overlay {
@@ -306,35 +287,56 @@ body {
   align-items: center; justify-content: center;
 }
 #guide-overlay.open { display: flex; }
-
 #guide-modal {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
-  padding: 24px; width: 700px; max-width: 95vw;
-  display: flex; gap: 20px; position: relative;
+  padding: 24px; width: 720px; max-width: 96vw;
+  display: flex; gap: 24px; position: relative;
   box-shadow: 0 24px 64px #00000077;
   max-height: 90vh; overflow: auto;
 }
-.modal-close {
-  position: absolute; top: 14px; right: 18px;
-  background: none; border: none; color: var(--text-muted);
-  font-size: 24px; cursor: pointer; line-height: 1; transition: color 0.2s;
+#guide-left {
+  flex-shrink: 0; display: flex; flex-direction: column;
+  align-items: center; width: 280px;
 }
-.modal-close:hover { color: var(--text); }
-
-#guide-left { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
-#guide-canvas {
-  width: 280px; height: 340px; border-radius: 10px;
-  display: block; background: #08101f;
+#guide-img-box {
+  width: 280px; height: 320px; border-radius: 12px;
+  background: #08101f; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; overflow: hidden;
+  border: 1px solid var(--border);
+}
+#guide-img {
+  width: 100%; height: 100%; object-fit: contain; display: none; border-radius: 12px;
+}
+#guide-img-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 8px; padding: 20px; text-align: center;
+}
+#guide-img-placeholder .ph-icon { font-size: 56px; }
+#guide-img-placeholder .ph-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+#guide-img-loading {
+  display: none; flex-direction: column; align-items: center; gap: 10px;
+}
+.img-spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 #guide-sign-name {
   text-align: center; font-size: 22px; font-weight: 800;
   color: var(--accent); margin-top: 10px; letter-spacing: 2px; min-height: 32px;
 }
+#guide-savvy-link {
+  display: none; margin-top: 8px; padding: 6px 16px;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--btn); color: var(--text); cursor: pointer;
+  font-size: 12px; font-weight: 500; text-decoration: none;
+  transition: all 0.18s; text-align: center;
+}
+#guide-savvy-link:hover { background: var(--btn-hover); border-color: var(--accent); }
 
 #guide-right { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 #guide-right h2 { font-size: 18px; font-weight: 700; }
 #guide-right .sub { font-size: 13px; color: var(--text-muted); margin-top: -8px; }
-
 .guide-row { display: flex; gap: 8px; }
 #guide-input {
   flex: 1; padding: 10px 14px; border-radius: 8px;
@@ -343,12 +345,11 @@ body {
 }
 #guide-input:focus { border-color: var(--accent); }
 #guide-status { font-size: 13px; color: var(--text-muted); min-height: 20px; }
-
 .bank-title {
   font-size: 11px; font-weight: 700; letter-spacing: 1px;
   text-transform: uppercase; color: var(--text-muted);
 }
-#word-bank { display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; max-height: 160px; }
+#word-bank { display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; max-height: 200px; }
 .chip {
   padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);
   background: var(--btn); font-size: 12px; cursor: pointer;
@@ -369,7 +370,8 @@ body {
   .hero-sub { text-align: center; }
   .activate-btn { padding: 15px 44px; font-size: 17px; }
   #guide-modal { flex-direction: column; align-items: center; }
-  #guide-canvas { width: 220px; height: 270px; }
+  #guide-left { width: 100%; }
+  #guide-img-box { width: 100%; height: 240px; }
   .topbar-right { gap: 4px; }
   .icon-btn { padding: 5px 9px; font-size: 12px; }
   #call-videos { grid-template-columns: 1fr; }
@@ -399,11 +401,11 @@ body {
     <span class="brand">SignAI</span>
     <div class="topbar-right">
       <span class="share-url">Share: <a id="share-link" href="#" target="_blank">loading…</a></span>
-      <button class="icon-btn" id="copy-btn"    onclick="copyLink()">📋 Copy Link</button>
-      <button class="icon-btn"                   onclick="openCallModal()">📹 Video Call</button>
-      <button class="icon-btn"                   onclick="openGuide()">👋 Sign Guide</button>
-      <button class="icon-btn" id="sound-btn"   onclick="toggleSound()">🔊 Sound On</button>
-      <button class="icon-btn" id="theme-btn"   onclick="toggleTheme()">🌙 Dark</button>
+      <button class="icon-btn" id="copy-btn"   onclick="copyLink()">📋 Copy Link</button>
+      <button class="icon-btn"                  onclick="openCallModal()">📹 Video Call</button>
+      <button class="icon-btn"                  onclick="openGuide()">👋 Sign Guide</button>
+      <button class="icon-btn" id="sound-btn"  onclick="toggleSound()">🔊 Sound On</button>
+      <button class="icon-btn" id="theme-btn"  onclick="toggleTheme()">🌙 Dark</button>
       <button class="icon-btn danger" id="end-call-btn" onclick="endCall()" style="display:none;">📵 End Call</button>
     </div>
   </div>
@@ -414,7 +416,6 @@ body {
       <div class="panel-label">Deaf Person — Camera</div>
       <video id="live-video" autoplay playsinline muted></video>
     </div>
-
     <div id="right-col">
       <div class="panel">
         <div class="panel-label">Signing → Text</div>
@@ -427,7 +428,6 @@ body {
           <button class="btn btn-ghost" onclick="exportTranscript()">⬇ Export .txt</button>
         </div>
       </div>
-
       <div class="panel">
         <div class="panel-label">Speech → Text (for deaf person)</div>
         <div id="speech-display" class="placeholder">Press mic to start speaking</div>
@@ -467,34 +467,30 @@ body {
   <div id="call-setup-modal">
     <button class="modal-close" onclick="closeCallModal()">×</button>
 
-    <!-- Step 1: create or join -->
+    <!-- Step 1: create or join — visible by default -->
     <div id="call-setup-view">
       <div class="call-modal-title">📹 Video Call</div>
       <div class="call-modal-sub">Sign with anyone, anywhere in the world</div>
 
-      <button class="btn-accent" style="width:100%;padding:13px;font-size:15px;" onclick="createRoom()">
+      <button class="btn-accent" style="width:100%;padding:14px;font-size:16px;border-radius:10px;" onclick="createRoom()">
         ➕ Create a Room
       </button>
 
       <div class="call-divider">or join with a code</div>
 
-      <div style="display:flex;gap:8px;">
-        <input id="join-code" placeholder="ABC123"
-               style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);
-                      background:var(--bg);color:var(--text);font-size:18px;font-family:monospace;
-                      letter-spacing:4px;text-transform:uppercase;outline:none;"
-               maxlength="6"
-               oninput="this.value=this.value.toUpperCase()"
-               onkeydown="if(event.key==='Enter')joinRoom()" />
-        <button class="btn-accent" style="padding:10px 18px;" onclick="joinRoom()">Join</button>
+      <input id="join-code" class="code-input" placeholder="ABC123" maxlength="6"
+             oninput="this.value=this.value.toUpperCase()"
+             onkeydown="if(event.key==='Enter')joinRoom()" />
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="btn-accent" style="flex:1;padding:11px;" onclick="joinRoom()">Join Room</button>
       </div>
       <div id="call-setup-err"></div>
     </div>
 
-    <!-- Step 2: waiting for partner -->
-    <div id="call-waiting-view">
+    <!-- Step 2: waiting for partner — hidden by default -->
+    <div id="call-waiting-view" style="display:none; text-align:center;">
       <div class="call-modal-title">Waiting for partner…</div>
-      <div class="call-modal-sub">Share the code or link below</div>
+      <div class="call-modal-sub">Share the code or link with your partner</div>
       <div class="waiting-spinner"></div>
       <div class="room-code-big" id="room-code-display"></div>
       <div class="link-row">
@@ -512,26 +508,40 @@ body {
     <button class="modal-close" onclick="closeGuide()">×</button>
 
     <div id="guide-left">
-      <canvas id="guide-canvas"></canvas>
+      <div id="guide-img-box">
+        <!-- Loading spinner -->
+        <div id="guide-img-loading">
+          <div class="img-spinner"></div>
+          <div style="font-size:12px;color:var(--text-muted);">Loading…</div>
+        </div>
+        <!-- Actual sign image (GIF from ASL dictionary) -->
+        <img id="guide-img" alt="ASL Sign"
+             onload="onGuideImgLoad()" onerror="onGuideImgError()" />
+        <!-- Placeholder before any search -->
+        <div id="guide-img-placeholder">
+          <div class="ph-icon">🤟</div>
+          <div class="ph-text">Type a word on the right<br>to see the ASL sign</div>
+        </div>
+      </div>
       <div id="guide-sign-name"></div>
+      <a id="guide-savvy-link" href="#" target="_blank">🔗 Watch on SigningSavvy</a>
     </div>
 
     <div id="guide-right">
       <h2>👋 Sign Guide</h2>
-      <p class="sub">Type a word to see the 3D sign animation</p>
+      <p class="sub">Type a word or letter to see how to sign it</p>
       <div class="guide-row">
         <input id="guide-input" placeholder="e.g. hello, yes, water, love…"
                onkeydown="if(event.key==='Enter') lookupSign()" />
         <button class="btn-accent" onclick="lookupSign()">Show</button>
       </div>
       <div id="guide-status"></div>
-      <div class="bank-title">Available signs</div>
+      <div class="bank-title">Quick signs</div>
       <div id="word-bank"></div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
 // ── Config ─────────────────────────────────────────────────────────────
@@ -588,7 +598,6 @@ function toggleSound() {
   b.textContent = soundOn ? '🔊 Sound On' : '🔇 Muted';
   b.classList.toggle('active-btn', !soundOn);
 }
-
 function playDetectionSound() {
   if (!soundOn) return;
   try {
@@ -644,11 +653,9 @@ function startLoop() {
 function handleResult(data) {
   if (data.error) { confBar.style.width = '0%'; return; }
   const label = data.label, conf = data.confidence || 0;
-
   confBar.style.width = (conf * 100).toFixed(0) + '%';
   confBar.style.backgroundColor =
     conf < 0.5 ? 'var(--red)' : conf < CONF_THRESHOLD ? 'var(--yellow)' : 'var(--green)';
-
   if (label && conf >= CONF_THRESHOLD) {
     signBig.textContent = label;
     const now = Date.now() / 1000;
@@ -665,7 +672,6 @@ function handleResult(data) {
 }
 
 function clearTranscript() { transcript.textContent = ''; lastLabel = null; }
-
 function exportTranscript() {
   const text = transcript.textContent.trim();
   if (!text) { alert('Transcript is empty.'); return; }
@@ -720,19 +726,14 @@ const ICE_CONFIG = {
   ]
 };
 
-let socket          = null;
-let pc              = null;   // RTCPeerConnection
-let roomId          = null;
-let callActive      = false;
-let localCallStream = null;
-let callLoopTimer   = null;
-let callPending     = false;
-let lastCallEntry   = null, lastCallEntryTs = 0;
+let socket = null, pc = null, roomId = null;
+let callActive = false, localCallStream = null;
+let callLoopTimer = null, callPending = false;
+let lastCallEntry = null, lastCallEntryTs = 0;
 
 const callCapCanvas = document.createElement('canvas');
 const callCapCtx    = callCapCanvas.getContext('2d');
 
-// ── Socket init ────────────────────────────────────────────────────────
 function initSocket() {
   if (socket) return;
   socket = io();
@@ -742,7 +743,6 @@ function initSocket() {
     showWaitingView(roomId);
   });
 
-  // First person in room gets this when second person joins — they create the offer
   socket.on('peer-ready', async () => {
     pc = createPC();
     const offer = await pc.createOffer();
@@ -767,8 +767,7 @@ function initSocket() {
   });
 
   socket.on('peer-sign', d => {
-    const el = document.getElementById('remote-sign-overlay');
-    el.textContent = d.label || '';
+    document.getElementById('remote-sign-overlay').textContent = d.label || '';
     if (d.label) appendCallTranscript('Partner', d.label, 'var(--green)');
   });
 
@@ -783,43 +782,26 @@ function initSocket() {
   });
 }
 
-// ── RTCPeerConnection factory ──────────────────────────────────────────
 function createPC() {
   const p = new RTCPeerConnection(ICE_CONFIG);
-
-  if (localCallStream) {
-    localCallStream.getTracks().forEach(t => p.addTrack(t, localCallStream));
-  }
-
-  p.ontrack = e => {
-    const remVid = document.getElementById('remote-call-video');
-    remVid.srcObject = e.streams[0];
-  };
-
+  if (localCallStream) localCallStream.getTracks().forEach(t => p.addTrack(t, localCallStream));
+  p.ontrack = e => { document.getElementById('remote-call-video').srcObject = e.streams[0]; };
   p.onicecandidate = e => {
-    if (e.candidate && socket) {
-      socket.emit('ice-candidate', { roomId, candidate: e.candidate });
-    }
+    if (e.candidate && socket) socket.emit('ice-candidate', { roomId, candidate: e.candidate });
   };
-
   p.onconnectionstatechange = () => {
     if (p.connectionState === 'connected') onCallConnected();
-    if (p.connectionState === 'failed' || p.connectionState === 'disconnected') {
+    if (p.connectionState === 'failed' || p.connectionState === 'disconnected')
       document.getElementById('call-conn-status').textContent = '⚠️ Connection lost.';
-    }
   };
-
   return p;
 }
 
-// ── Call flow ──────────────────────────────────────────────────────────
 function openCallModal() {
-  document.getElementById('call-setup-view').style.display   = '';
+  document.getElementById('call-setup-view').style.display   = 'block';
   document.getElementById('call-waiting-view').style.display = 'none';
   document.getElementById('call-setup-err').textContent      = '';
   document.getElementById('call-modal-overlay').classList.add('open');
-
-  // Pre-fill code if URL has ?room=
   const urlRoom = new URLSearchParams(window.location.search).get('room');
   if (urlRoom) document.getElementById('join-code').value = urlRoom.toUpperCase();
 }
@@ -827,7 +809,6 @@ function openCallModal() {
 function closeCallModal() {
   if (!callActive) document.getElementById('call-modal-overlay').classList.remove('open');
 }
-
 function closeBgCall(e) {
   if (e.target === document.getElementById('call-modal-overlay') && !callActive) closeCallModal();
 }
@@ -835,8 +816,7 @@ function closeBgCall(e) {
 async function startLocalStream() {
   if (localCallStream) return;
   localCallStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  const v = document.getElementById('local-call-video');
-  v.srcObject = localCallStream;
+  document.getElementById('local-call-video').srcObject = localCallStream;
 }
 
 async function createRoom() {
@@ -847,7 +827,7 @@ async function createRoom() {
     const data = await fetch('/create-room').then(r => r.json());
     socket.emit('join-room', { roomId: data.roomId });
   } catch(err) {
-    document.getElementById('call-setup-err').textContent = 'Camera error: ' + err.message;
+    document.getElementById('call-setup-err').textContent = 'Camera/mic error: ' + err.message;
   }
 }
 
@@ -863,13 +843,13 @@ async function joinRoom() {
     initSocket();
     socket.emit('join-room', { roomId: code });
   } catch(err) {
-    document.getElementById('call-setup-err').textContent = 'Camera error: ' + err.message;
+    document.getElementById('call-setup-err').textContent = 'Camera/mic error: ' + err.message;
   }
 }
 
 function showWaitingView(rid) {
   document.getElementById('call-setup-view').style.display   = 'none';
-  document.getElementById('call-waiting-view').style.display = '';
+  document.getElementById('call-waiting-view').style.display = 'block';
   document.getElementById('room-code-display').textContent   = rid;
   document.getElementById('room-link-input').value = window.location.origin + '/?room=' + rid;
 }
@@ -884,10 +864,7 @@ function copyRoomLink() {
 
 function cancelCall() {
   cleanupPeer();
-  if (localCallStream) {
-    localCallStream.getTracks().forEach(t => t.stop());
-    localCallStream = null;
-  }
+  if (localCallStream) { localCallStream.getTracks().forEach(t => t.stop()); localCallStream = null; }
   document.getElementById('call-modal-overlay').classList.remove('open');
 }
 
@@ -899,7 +876,6 @@ function onCallConnected() {
   document.getElementById('end-call-btn').style.display = '';
   document.getElementById('end-call-btn').textContent   = '📵 End Call';
   document.getElementById('call-conn-status').textContent = '🟢 Connected';
-  // Activate app shell if not already active
   document.getElementById('landing').classList.add('gone');
   document.getElementById('app').classList.add('active');
   startCallLoop();
@@ -909,10 +885,7 @@ function endCall() {
   callActive = false;
   if (callLoopTimer) { clearInterval(callLoopTimer); callLoopTimer = null; }
   cleanupPeer();
-  if (localCallStream) {
-    localCallStream.getTracks().forEach(t => t.stop());
-    localCallStream = null;
-  }
+  if (localCallStream) { localCallStream.getTracks().forEach(t => t.stop()); localCallStream = null; }
   document.getElementById('call-screen').classList.remove('active');
   document.getElementById('panels').style.display       = '';
   document.getElementById('end-call-btn').style.display = 'none';
@@ -922,11 +895,8 @@ function endCall() {
   document.getElementById('remote-call-video').srcObject     = null;
 }
 
-function cleanupPeer() {
-  if (pc) { pc.close(); pc = null; }
-}
+function cleanupPeer() { if (pc) { pc.close(); pc = null; } }
 
-// ── Sign detection during call ─────────────────────────────────────────
 function startCallLoop() {
   const callVid = document.getElementById('local-call-video');
   callLoopTimer = setInterval(async () => {
@@ -942,7 +912,7 @@ function startCallLoop() {
         body: JSON.stringify({ image: callCapCanvas.toDataURL('image/jpeg', 0.82) }),
       });
       const data = await resp.json();
-      const lbl  = data.label, conf = data.confidence || 0;
+      const lbl = data.label, conf = data.confidence || 0;
       if (lbl && conf >= CONF_THRESHOLD) {
         document.getElementById('local-sign-overlay').textContent = lbl;
         appendCallTranscript('You', lbl, 'var(--accent)');
@@ -969,11 +939,10 @@ function appendCallTranscript(who, label, color) {
   playDetectionSound();
 }
 
-// Auto-open call modal if URL has ?room= param on landing
+// Auto-join if URL has ?room=
 (function checkUrlRoom() {
   const urlRoom = new URLSearchParams(window.location.search).get('room');
   if (!urlRoom) return;
-  // Show a join-call button on landing
   const btn = document.createElement('button');
   btn.className = 'call-land-btn';
   btn.style.cssText = 'border-color:var(--accent);color:var(--accent);animation:glow 2.2s ease-in-out infinite;';
@@ -987,213 +956,97 @@ function appendCallTranscript(who, label, color) {
 })();
 
 // ─────────────────────────────────────────────────────────────────────────
-//  SIGN GUIDE — Three.js 3D Avatar
+//  SIGN GUIDE — Real ASL photos from Lifeprint + SigningSavvy fallback
 // ─────────────────────────────────────────────────────────────────────────
-const DEF = { sLx:0, sLz:.32, eLx:.10, eLz:-.12, sRx:0, sRz:-.32, eRx:.10, eRz:.12 };
 
-const SIGNS = {
-  HELLO:       [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.55,sRz:-1.85,eRx:-.4,eRz:.10},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:.30,sRz:-1.85,eRx:-.4,eRz:.10}],
-  GOODBYE:     [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.55,sRz:-1.85,eRx:-.4,eRz:.10},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:.30,sRz:-1.85,eRx:-.5,eRz:.10},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.30,sRz:-1.85,eRx:-.5,eRz:.10}],
-  'THANK YOU': [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.45,sRz:-.50,eRx:.35,eRz:.32},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:.22,sRz:-.42,eRx:.12,eRz:.20}],
-  PLEASE:      [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.42,eRx:.62,eRz:.40},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.22,sRz:-.38,eRx:.52,eRz:.36}],
-  SORRY:       [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.32,eRx:.82,eRz:.32},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.12,sRz:-.30,eRx:.62,eRz:.28}],
-  YES:         [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.22,sRz:-.42,eRx:.55,eRz:.52},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.22,sRz:-.42,eRx:.82,eRz:.52}],
-  NO:          [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.52,eRx:.42,eRz:.62},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:.12,sRz:-.52,eRx:.42,eRz:.62}],
-  HELP:        [{sLx:-.32,sLz:.52,eLx:.52,eLz:.20,sRx:-.32,sRz:-.52,eRx:.52,eRz:-.20},{sLx:-.55,sLz:.52,eLx:.72,eLz:.20,sRx:-.55,sRz:-.52,eRx:.72,eRz:-.20}],
-  STOP:        [{sLx:-.22,sLz:.42,eLx:.55,eLz:.18,sRx:-.22,sRz:-.42,eRx:.22,eRz:-.18}],
-  WATER:       [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.42,sRz:-.52,eRx:.42,eRz:.42},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.48,eRx:.32,eRz:.38}],
-  GOOD:        [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.42,sRz:-.50,eRx:.30,eRz:.30},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:.20,sRz:-.42,eRx:.22,eRz:.22}],
-  BAD:         [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.42,sRz:-.50,eRx:.30,eRz:.30},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:.22,sRz:-.50,eRx:.55,eRz:.30}],
-  MORE:        [{sLx:-.30,sLz:.45,eLx:.50,eLz:.15,sRx:-.30,sRz:-.45,eRx:.50,eRz:-.15},{sLx:-.22,sLz:.40,eLx:.42,eLz:.12,sRx:-.22,sRz:-.40,eRx:.42,eRz:-.12}],
-  I:           [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.22,sRz:-.42,eRx:-.12,eRz:.52}],
-  YOU:         [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.28,sRz:-.60,eRx:.32,eRz:.28}],
-  LOVE:        [{sLx:-.50,sLz:.55,eLx:.42,eLz:.52,sRx:-.50,sRz:-.55,eRx:.42,eRz:-.52},{sLx:-.42,sLz:.50,eLx:.35,eLz:.45,sRx:-.42,sRz:-.50,eRx:.35,eRz:-.45}],
-  WHERE:       [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.55,eRx:.50,eRz:.58},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.28,sRz:-.52,eRx:.44,eRz:.52}],
-  WHAT:        [{sLx:-.25,sLz:.44,eLx:.42,eLz:.18,sRx:-.25,sRz:-.44,eRx:.42,eRz:-.18},{sLx:-.20,sLz:.40,eLx:.36,eLz:.14,sRx:-.20,sRz:-.40,eRx:.36,eRz:-.14}],
-  NAME:        [{sLx:-.22,sLz:.44,eLx:.45,eLz:.22,sRx:-.22,sRz:-.44,eRx:.45,eRz:-.22},{sLx:-.26,sLz:.48,eLx:.50,eLz:.26,sRx:-.26,sRz:-.48,eRx:.50,eRz:-.26}],
-  EAT:         [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.38,sRz:-.45,eRx:.65,eRz:.38},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.28,sRz:-.40,eRx:.55,eRz:.30}],
-  DRINK:       [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.42,sRz:-.48,eRx:.55,eRz:.35},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.22,sRz:-.44,eRx:.30,eRz:.28}],
-  FAMILY:      [{sLx:-.28,sLz:.48,eLx:.45,eLz:.22,sRx:-.28,sRz:-.48,eRx:.45,eRz:-.22},{sLx:-.38,sLz:.58,eLx:.52,eLz:.28,sRx:-.38,sRz:-.58,eRx:.52,eRz:-.28}],
-  FRIEND:      [{sLx:-.22,sLz:.42,eLx:.45,eLz:.20,sRx:-.22,sRz:-.42,eRx:.45,eRz:-.20},{sLx:-.28,sLz:.48,eLx:.50,eLz:.25,sRx:-.28,sRz:-.48,eRx:.50,eRz:-.25}],
-  HOME:        [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.35,sRz:-.48,eRx:.45,eRz:.30},{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.28,sRz:-.42,eRx:.38,eRz:.22}],
-};
-'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch =>
-  SIGNS[ch] = [{sLx:0,sLz:.32,eLx:.10,eLz:-.12,sRx:-.32,sRz:-.52,eRx:.62,eRz:.42}]
-);
+// Known words for the word bank
+const KNOWN_WORDS = [
+  'HELLO','GOODBYE','THANK YOU','PLEASE','SORRY','YES','NO',
+  'HELP','STOP','WATER','GOOD','BAD','MORE','YOU','I','LOVE',
+  'WHERE','WHAT','NAME','EAT','DRINK','FAMILY','FRIEND','HOME',
+];
 
-const KNOWN_WORDS = Object.keys(SIGNS).filter(k => k.length > 1).sort();
-
-let gRenderer = null, gArmL, gArmR, gRoot;
-let gQueue = [], gLastStep = 0, gAnimT = 1, gAnimStart = 0;
-let gCur = {...DEF}, gTgt = {...DEF};
-let guideOpen = false;
-
-function lerp(a,b,t){ return a+(b-a)*t; }
-function ss(t){ return t*t*(3-2*t); }
-
-function applyPose(p){
-  if (!gArmL) return;
-  gArmL.ua.rotation.set(p.sLx,0,p.sLz);
-  gArmL.fa.rotation.set(p.eLx,0,p.eLz);
-  gArmR.ua.rotation.set(p.sRx,0,p.sRz);
-  gArmR.fa.rotation.set(p.eRx,0,p.eRz);
+// Lifeprint URL builder — animated GIFs of real people signing
+function getSignImgUrl(key) {
+  if (key.length === 1 && /[A-Z]/.test(key)) {
+    // Fingerspelling alphabet
+    return `https://www.lifeprint.com/asl101/fingerspelling/abc-gifs/${key.toLowerCase()}.gif`;
+  }
+  // Common words — try lifeprint animated gifs
+  const word = key.toLowerCase().replace(/\s+/g, '');
+  return `https://www.lifeprint.com/asl101/gifs-animated/${word}.gif`;
 }
 
-function initGuide() {
-  if (gRenderer) { gRenderer.render(gRenderer._scene, gRenderer._camera); return; }
+function onGuideImgLoad() {
+  document.getElementById('guide-img-loading').style.display    = 'none';
+  document.getElementById('guide-img-placeholder').style.display = 'none';
+  document.getElementById('guide-img').style.display            = 'block';
+  document.getElementById('guide-status').textContent           = '✅ Animated sign from ASL dictionary';
+}
 
-  if (typeof THREE === 'undefined') {
-    document.getElementById('guide-status').textContent = '⚠️ 3D library failed to load. Check internet connection.';
-    return;
-  }
-
-  try {
-    const canvas = document.getElementById('guide-canvas');
-    const W = 280, H = 340;
-
-    gRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-    gRenderer.setSize(W, H);
-    gRenderer.shadowMap.enabled = false;
-    gRenderer.setPixelRatio(1);
-
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, W/H, 0.1, 100);
-    gRenderer._scene  = scene;
-    gRenderer._camera = camera;
-
-    scene.background = new THREE.Color(0x0d1b2a);
-    camera.position.set(0, 0.4, 4.8);
-    camera.lookAt(0, 0, 0);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const key = new THREE.DirectionalLight(0xffffff, 1.2);
-    key.position.set(2, 4, 3);
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0x4488ff, 0.6);
-    fill.position.set(-3, 2, -2);
-    scene.add(fill);
-
-    const skin  = new THREE.MeshLambertMaterial({ color: 0x2288dd });
-    const joint = new THREE.MeshLambertMaterial({ color: 0x0055aa });
-    const headM = new THREE.MeshLambertMaterial({ color: 0x1166cc });
-    const eyeM  = new THREE.MeshLambertMaterial({ color: 0x00eeff, emissive: 0x004466 });
-
-    function cyl(rt,rb,h,m) { return new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,12), m); }
-    function ball(r,m)      { return new THREE.Mesh(new THREE.SphereGeometry(r,12,12), m); }
-
-    gRoot = new THREE.Group();
-    scene.add(gRoot);
-
-    const torso = cyl(.21,.27,.75,skin); torso.position.y=0; gRoot.add(torso);
-    const hd = ball(.25,headM); hd.position.y=.63; gRoot.add(hd);
-    [-0.09,0.09].forEach(x=>{ const e=ball(.045,eyeM); e.position.set(x,.67,.23); gRoot.add(e); });
-    [-0.15,0.15].forEach(side=>{ const leg=cyl(.09,.10,.50,skin); leg.position.set(side,-.63,0); gRoot.add(leg); });
-
-    function buildArm(side) {
-      const sh = new THREE.Group(); sh.position.set(side*.33,.28,0); gRoot.add(sh);
-      sh.add(ball(.11,joint));
-      const ua = new THREE.Group(); sh.add(ua);
-      const u = cyl(.08,.09,.40,skin); u.position.y=-.20; ua.add(u);
-      const el = new THREE.Group(); el.position.y=-.40; ua.add(el);
-      el.add(ball(.085,joint));
-      const fa = new THREE.Group(); el.add(fa);
-      const f = cyl(.065,.075,.36,skin); f.position.y=-.18; fa.add(f);
-      const hnd = ball(.10,joint); hnd.position.y=-.36; fa.add(hnd);
-      return { sh, ua, el, fa };
-    }
-    gArmL = buildArm(-1);
-    gArmR = buildArm(1);
-
-    const grid = new THREE.GridHelper(5,10,0x1144aa,0x0a2255);
-    grid.position.y=-1.1; scene.add(grid);
-
-    applyPose(DEF);
-
-    function renderLoop() {
-      requestAnimationFrame(renderLoop);
-      if (!guideOpen) return;
-      const now = performance.now();
-
-      if (gQueue.length && (now - gLastStep) >= 680) {
-        const item = gQueue.shift();
-        if (item.reset) {
-          gCur={...gTgt}; gTgt={...DEF};
-          gAnimT=0; gAnimStart=now;
-        } else if (!item.pause) {
-          gCur={...gTgt}; gTgt={...item.pose};
-          gAnimT=0; gAnimStart=now;
-        }
-        gLastStep = now;
-      }
-
-      if (gAnimT < 1) {
-        const t = Math.min((now - gAnimStart) / 320, 1);
-        gAnimT = t;
-        const out={};
-        for (const k in gCur) out[k] = lerp(gCur[k], gTgt[k], ss(t));
-        applyPose(out);
-      }
-
-      if (!gQueue.length && gAnimT >= 1) {
-        gRoot.rotation.y = Math.sin(now * 0.0004) * 0.06;
-      }
-
-      gRenderer.render(scene, camera);
-    }
-    requestAnimationFrame(renderLoop);
-
-  } catch(err) {
-    document.getElementById('guide-status').textContent = '⚠️ 3D error: ' + err.message;
-  }
+function onGuideImgError() {
+  document.getElementById('guide-img-loading').style.display    = 'none';
+  document.getElementById('guide-img').style.display            = 'none';
+  document.getElementById('guide-img-placeholder').style.display = 'flex';
+  document.getElementById('guide-img-placeholder').innerHTML    =
+    '<div class="ph-icon">🔍</div>' +
+    '<div class="ph-text">No image found.<br>Click the link below<br>to watch this sign.</div>';
+  document.getElementById('guide-status').textContent = '⚠️ Use the link below to watch the sign';
 }
 
 function openGuide() {
   document.getElementById('guide-overlay').classList.add('open');
-  guideOpen = true;
   buildWordBank();
-  setTimeout(initGuide, 80);
 }
 function closeGuide() {
   document.getElementById('guide-overlay').classList.remove('open');
-  guideOpen = false;
 }
-function closeBg(e) { if (e.target===document.getElementById('guide-overlay')) closeGuide(); }
+function closeBg(e) { if (e.target === document.getElementById('guide-overlay')) closeGuide(); }
 
 function buildWordBank() {
   const bank = document.getElementById('word-bank');
   if (bank.children.length) return;
   KNOWN_WORDS.forEach(w => {
     const c = document.createElement('div');
-    c.className='chip'; c.textContent=w;
-    c.onclick = () => { document.getElementById('guide-input').value=w; lookupSign(); };
+    c.className = 'chip'; c.textContent = w;
+    c.onclick = () => { document.getElementById('guide-input').value = w; lookupSign(); };
+    bank.appendChild(c);
+  });
+  // Add alphabet chips
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => {
+    const c = document.createElement('div');
+    c.className = 'chip'; c.textContent = ch;
+    c.onclick = () => { document.getElementById('guide-input').value = ch; lookupSign(); };
     bank.appendChild(c);
   });
 }
 
 function lookupSign() {
-  const raw   = document.getElementById('guide-input').value.trim();
-  const key   = raw.toUpperCase().replace(/[.,!?;:'"]/g,'');
-  const nameEl = document.getElementById('guide-sign-name');
-  const status = document.getElementById('guide-status');
+  const raw = document.getElementById('guide-input').value.trim();
+  const key = raw.toUpperCase().replace(/[.,!?;:'"]/g, '');
   if (!key) return;
 
-  gQueue = []; gLastStep = 0;
+  const img         = document.getElementById('guide-img');
+  const loading     = document.getElementById('guide-img-loading');
+  const placeholder = document.getElementById('guide-img-placeholder');
+  const nameEl      = document.getElementById('guide-sign-name');
+  const status      = document.getElementById('guide-status');
+  const savvyLink   = document.getElementById('guide-savvy-link');
 
-  if (SIGNS[key]) {
-    nameEl.textContent = key;
-    status.textContent = '✅ Showing sign — loops 3 times';
-    for (let i=0;i<3;i++) {
-      SIGNS[key].forEach(p => gQueue.push({pose:p}));
-      gQueue.push({pause:true});
-    }
-  } else {
-    nameEl.textContent = key;
-    status.textContent = `✏️ Not in dictionary — fingerspelling "${raw}" letter by letter`;
-    for (const ch of key) {
-      if (SIGNS[ch]) { gQueue.push({pose:SIGNS[ch][0]}); gQueue.push({pause:true}); }
-    }
-  }
-  gQueue.push({reset:true});
+  // Reset display state
+  img.style.display         = 'none';
+  img.src                   = '';
+  loading.style.display     = 'flex';
+  placeholder.style.display = 'none';
+  nameEl.textContent        = key;
+  status.textContent        = 'Loading sign image…';
+
+  // SigningSavvy link — always works as fallback
+  savvyLink.href         = `https://www.signingsavvy.com/search/${encodeURIComponent(raw)}`;
+  savvyLink.style.display = '';
+
+  // Load image after short delay so loading spinner shows
+  setTimeout(() => { img.src = getSignImgUrl(key); }, 80);
 }
 </script>
 </body>

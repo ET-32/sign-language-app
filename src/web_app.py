@@ -190,6 +190,15 @@ def on_call_speech(data):
         emit('peer-speech', data, to=sid)
 
 
+@socketio.on('video-frame')
+def on_video_frame(data):
+    rid = data.get('roomId', '')
+    with _rooms_lock:
+        others = list(_rooms.get(rid, set()) - {request.sid})
+    for sid in others:
+        emit('peer-video-frame', {'frame': data.get('frame')}, to=sid)
+
+
 @socketio.on('sign-update')
 def on_sign_update(data):
     rid = data.get('roomId', '')

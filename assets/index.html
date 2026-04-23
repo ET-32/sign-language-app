@@ -474,7 +474,7 @@ body {
       </div>
       <div class="call-vid-wrap">
         <div class="call-person-label">Partner</div>
-        <video id="remote-call-video" autoplay playsinline></video>
+        <img id="remote-call-video" style="width:100%;height:100%;object-fit:cover;background:#111;" />
         <div class="call-sign-overlay" id="remote-sign-overlay" style="color:var(--green)"></div>
       </div>
     </div>
@@ -762,25 +762,34 @@ function stopMic()    { micOn = false; if (recognition) recognition.stop(); }
 function clearSpeech(){ speechDisp.textContent = 'Press mic to start speaking'; speechDisp.classList.add('placeholder'); }
 
 // ─────────────────────────────────────────────────────────────────────────
-//  VIDEO CALL — WebRTC + Socket.IO signaling
+//  VIDEO CALL — Socket.IO relay (works across all networks, no TURN needed)
 // ─────────────────────────────────────────────────────────────────────────
-const ICE_CONFIG = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'turn:openrelay.metered.ca:80',              username: 'openrelayproject', credential: 'openrelayproject' },
-    { urls: 'turn:openrelay.metered.ca:443',             username: 'openrelayproject', credential: 'openrelayproject' },
-    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
-  ]
-};
-
-let socket = null, pc = null, roomId = null;
+let socket = null, roomId = null;
 let callActive = false, localCallStream = null;
 let callLoopTimer = null, callPending = false;
 let lastCallEntry = null, lastCallEntryTs = 0;
+let videoRelayTimer = null;
 
 const callCapCanvas = document.createElement('canvas');
 const callCapCtx    = callCapCanvas.getContext('2d');
+const relayCap = document.createElement('canvas');
+relayCap.width = 320; relayCap.height = 240;
+const relayCtx = relayCap.getContext('2d');
+
+function startVideoRelay() {
+  if (videoRelayTimer) return;
+  const vid = document.getElementById('local-call-video');
+  videoRelayTimer = setInterval(() => {
+    if (!roomId || !socket || vid.readyState < 2) return;
+    relayCtx.drawImage(vid, 0, 0, 320, 240);
+    const frame = relayCap.toDataURL('image/jpeg', 0.55);
+    socket.emit('video-frame', { roomId, frame });
+  }, 100); // 10 fps
+}
+
+function stopVideoRelay() {
+  if (videoRelayTimer) { clearInterval(videoRelayTimer); videoRelayTimer = null; }
+}
 
 function initSocket() {
   if (socket) return;
@@ -792,30 +801,17 @@ function initSocket() {
       showWaitingView(roomId);
     } else {
       showConnectingView();
+      startVideoRelay();
     }
   });
 
-  socket.on('peer-ready', async () => {
-    pc = createPC();
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit('offer', { roomId, offer });
+  socket.on('peer-ready', () => {
+    startVideoRelay();
   });
 
-  socket.on('offer', async d => {
-    pc = createPC();
-    await pc.setRemoteDescription(new RTCSessionDescription(d.offer));
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    socket.emit('answer', { roomId, answer });
-  });
-
-  socket.on('answer', async d => {
-    if (pc) await pc.setRemoteDescription(new RTCSessionDescription(d.answer)).catch(()=>{});
-  });
-
-  socket.on('ice-candidate', d => {
-    if (pc && d.candidate) pc.addIceCandidate(new RTCIceCandidate(d.candidate)).catch(()=>{});
+  socket.on('peer-video-frame', d => {
+    if (!callActive) onCallConnected();
+    document.getElementById('remote-call-video').src = d.frame;
   });
 
   socket.on('peer-sign', d => {
@@ -839,7 +835,6 @@ function initSocket() {
 
   socket.on('peer-left', () => {
     document.getElementById('call-conn-status').textContent = '⚠️ Partner disconnected.';
-    cleanupPeer();
     document.getElementById('end-call-btn').textContent = '✕ Close';
   });
 
@@ -848,20 +843,7 @@ function initSocket() {
   });
 }
 
-function createPC() {
-  const p = new RTCPeerConnection(ICE_CONFIG);
-  if (localCallStream) localCallStream.getTracks().forEach(t => p.addTrack(t, localCallStream));
-  p.ontrack = e => { document.getElementById('remote-call-video').srcObject = e.streams[0]; };
-  p.onicecandidate = e => {
-    if (e.candidate && socket) socket.emit('ice-candidate', { roomId, candidate: e.candidate });
-  };
-  p.onconnectionstatechange = () => {
-    if (p.connectionState === 'connected') onCallConnected();
-    if (p.connectionState === 'failed' || p.connectionState === 'disconnected')
-      document.getElementById('call-conn-status').textContent = '⚠️ Connection lost.';
-  };
-  return p;
-}
+function cleanupPeer() { stopVideoRelay(); }
 
 function openCallModal() {
   document.getElementById('call-setup-view').style.display   = 'block';
@@ -1022,7 +1004,7 @@ function endCall() {
   document.getElementById('local-sign-overlay').textContent  = '';
   document.getElementById('remote-sign-overlay').textContent = '';
   document.getElementById('call-transcript-box').innerHTML   = '';
-  document.getElementById('remote-call-video').srcObject     = null;
+  document.getElementById('remote-call-video').src           = '';
   const myBox = document.getElementById('call-my-speech-box');
   myBox.textContent = 'Your speech will appear here…';
   myBox.classList.add('placeholder');

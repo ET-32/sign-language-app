@@ -778,16 +778,19 @@ const relayCtx      = relayCap.getContext('2d');
 function startVideoRelay() {
   if (videoRelayTimer) return;
   const vid = document.getElementById('local-call-video');
+  let sending = false;
   videoRelayTimer = setInterval(() => {
-    if (!roomId || !socket || !vid.videoWidth) return;
-    const w = Math.min(vid.videoWidth, 640);
+    if (!roomId || !socket || !vid.videoWidth || sending) return;
+    const w = Math.min(vid.videoWidth, 320);
     const h = Math.round(w * vid.videoHeight / vid.videoWidth);
     if (relayCap.width !== w || relayCap.height !== h) {
       relayCap.width = w; relayCap.height = h;
     }
     relayCtx.drawImage(vid, 0, 0, w, h);
-    socket.emit('video-frame', { roomId, frame: relayCap.toDataURL('image/jpeg', 0.82) });
-  }, 80); // ~12 fps
+    const frame = relayCap.toDataURL('image/jpeg', 0.65);
+    sending = true;
+    socket.emit('video-frame', { roomId, frame }, () => { sending = false; });
+  }, 200); // 5 fps — keeps Socket.IO buffer clear over Railway relay
 }
 
 function stopVideoRelay() {

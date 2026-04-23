@@ -532,11 +532,11 @@ body {
 
     <!-- Step 2: waiting for partner — hidden by default -->
     <div id="call-waiting-view" style="display:none; text-align:center;">
-      <div class="call-modal-title">Waiting for partner…</div>
-      <div class="call-modal-sub">Share the code or link with your partner</div>
+      <div class="call-modal-title" id="call-waiting-title">Waiting for partner…</div>
+      <div class="call-modal-sub"  id="call-waiting-sub">Share the code or link with your partner</div>
       <div class="waiting-spinner"></div>
       <div class="room-code-big" id="room-code-display"></div>
-      <div class="link-row">
+      <div class="link-row" id="call-waiting-link-row">
         <input id="room-link-input" readonly />
         <button class="icon-btn" id="copy-room-btn" onclick="copyRoomLink()">📋 Copy</button>
       </div>
@@ -768,6 +768,9 @@ const ICE_CONFIG = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'turn:openrelay.metered.ca:80',              username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443',             username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
   ]
 };
 
@@ -785,7 +788,11 @@ function initSocket() {
 
   socket.on('room-joined', d => {
     roomId = d.roomId;
-    showWaitingView(roomId);
+    if (d.count === 1) {
+      showWaitingView(roomId);
+    } else {
+      showConnectingView();
+    }
   });
 
   socket.on('peer-ready', async () => {
@@ -907,10 +914,23 @@ async function joinRoom() {
 }
 
 function showWaitingView(rid) {
-  document.getElementById('call-setup-view').style.display   = 'none';
-  document.getElementById('call-waiting-view').style.display = 'block';
-  document.getElementById('room-code-display').textContent   = rid;
+  document.getElementById('call-setup-view').style.display      = 'none';
+  document.getElementById('call-waiting-view').style.display    = 'block';
+  document.getElementById('call-waiting-title').textContent     = 'Waiting for partner…';
+  document.getElementById('call-waiting-sub').textContent       = 'Share the code or link with your partner';
+  document.getElementById('call-waiting-link-row').style.display = '';
+  document.getElementById('room-code-display').style.display    = '';
+  document.getElementById('room-code-display').textContent      = rid;
   document.getElementById('room-link-input').value = window.location.origin + '/?room=' + rid;
+}
+
+function showConnectingView() {
+  document.getElementById('call-setup-view').style.display      = 'none';
+  document.getElementById('call-waiting-view').style.display    = 'block';
+  document.getElementById('call-waiting-title').textContent     = 'Connecting…';
+  document.getElementById('call-waiting-sub').textContent       = 'Setting up your call, please wait';
+  document.getElementById('call-waiting-link-row').style.display = 'none';
+  document.getElementById('room-code-display').style.display    = 'none';
 }
 
 function copyRoomLink() {

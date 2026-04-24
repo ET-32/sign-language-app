@@ -5,14 +5,12 @@ Flask web server — serves the web UI, handles frame prediction, and WebRTC sig
 import base64
 import os
 import random
-import socket
 import string
 import threading
-import urllib.request as _urllib
 
 import cv2
 import numpy as np
-from flask import Flask, Response, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from flask_socketio import SocketIO, emit, join_room
 
 _ASSETS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
@@ -54,17 +52,6 @@ def _make_room_id():
 def index():
     return send_from_directory(_ASSETS, 'index.html')
 
-
-@app.route('/info')
-def info():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        local_ip = s.getsockname()[0]
-        s.close()
-    except Exception:
-        local_ip = '127.0.0.1'
-    return jsonify({'local_url': f'http://{local_ip}:5055'})
 
 
 @app.route('/create-room')

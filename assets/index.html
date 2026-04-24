@@ -424,8 +424,7 @@ body {
   <div id="topbar">
     <span class="brand">SignAI</span>
     <div class="topbar-right">
-      <span class="share-url">Share: <a id="share-link" href="#" target="_blank">loading…</a></span>
-      <button class="icon-btn" id="copy-btn"   onclick="copyLink()">📋 Copy Link</button>
+      <button class="icon-btn" onclick="goHome()">⬅ Home</button>
       <button class="icon-btn" id="topbar-call-btn" onclick="openCallModal()">📹 Video Call</button>
       <button class="icon-btn"                  onclick="openGuide()">👋 Sign Guide</button>
       <button class="icon-btn" id="sound-btn"  onclick="toggleSound()">🔊 Sound On</button>
@@ -616,23 +615,7 @@ const speechDisp = document.getElementById('speech-display');
 const micStatus  = document.getElementById('mic-status');
 const micBtn     = document.getElementById('mic-btn');
 
-// ── Share URL ──────────────────────────────────────────────────────────
-fetch('/info').then(r => r.json()).then(d => {
-  const a = document.getElementById('share-link');
-  a.textContent = d.local_url; a.href = d.local_url;
-}).catch(() => {
-  const a = document.getElementById('share-link');
-  a.textContent = a.href = window.location.origin;
-});
 
-function copyLink() {
-  const url = document.getElementById('share-link').href || window.location.href;
-  navigator.clipboard.writeText(url).then(() => {
-    const b = document.getElementById('copy-btn');
-    b.textContent = '✅ Copied!';
-    setTimeout(() => b.textContent = '📋 Copy Link', 2000);
-  });
-}
 
 // ── Theme ──────────────────────────────────────────────────────────────
 let isDark = true;
@@ -664,6 +647,19 @@ function playDetectionSound() {
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
     osc.start(); osc.stop(audioCtx.currentTime + 0.2);
   } catch(_) {}
+}
+
+// ── Home navigation ───────────────────────────────────────────────────
+function goHome() {
+  if (callActive) { endCall(); return; }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (loopTimer) { clearInterval(loopTimer); loopTimer = null; }
+  video.srcObject = null;
+  signBig.textContent = '—';
+  confBar.style.width = '0%';
+  pendingReq = false;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('landing').classList.remove('gone');
 }
 
 // ── Solo Activate ──────────────────────────────────────────────────────
@@ -1222,7 +1218,7 @@ function lookupSign() {
 function showGuideLetter(idx) {
   const letter = guideLetters[idx].toLowerCase();
   const img    = document.getElementById('guide-img');
-  img.src      = `/signs/${letter}.gif`;
+  img.src      = `/signs/${letter}`;   // server appends .gif
   img.style.display = 'block';
   document.getElementById('guide-img-loading').style.display = 'none';
 }

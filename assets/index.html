@@ -590,7 +590,7 @@ body {
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
 // ── Config ─────────────────────────────────────────────────────────────
-const CONF_THRESHOLD = 0.75;
+const CONF_THRESHOLD = 0.65;
 const FRAME_MS       = 150;
 const REPEAT_DELAY   = 1.5;
 
@@ -676,13 +676,16 @@ async function activate() {
 const capCanvas = document.createElement('canvas');
 const capCtx    = capCanvas.getContext('2d');
 
+let loopTimer = null;
 function startLoop() {
-  setInterval(async () => {
+  if (loopTimer) return;
+  loopTimer = setInterval(async () => {
     if (pendingReq || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
     pendingReq = true;
-    capCanvas.width  = video.videoWidth;
-    capCanvas.height = video.videoHeight;
-    capCtx.drawImage(video, 0, 0);
+    const sw = Math.min(video.videoWidth, 640);
+    const sh = Math.round(sw * video.videoHeight / video.videoWidth);
+    capCanvas.width = sw; capCanvas.height = sh;
+    capCtx.drawImage(video, 0, 0, sw, sh);
     try {
       const resp = await fetch('/predict', {
         method: 'POST',
@@ -781,16 +784,18 @@ function startVideoRelay() {
   let sending = false;
   videoRelayTimer = setInterval(() => {
     if (!roomId || !socket || !vid.videoWidth || sending) return;
-    const w = Math.min(vid.videoWidth, 320);
+    const w = Math.min(vid.videoWidth, 640);
     const h = Math.round(w * vid.videoHeight / vid.videoWidth);
     if (relayCap.width !== w || relayCap.height !== h) {
       relayCap.width = w; relayCap.height = h;
     }
     relayCtx.drawImage(vid, 0, 0, w, h);
-    const frame = relayCap.toDataURL('image/jpeg', 0.65);
+    const frame = relayCap.toDataURL('image/jpeg', 0.80);
     sending = true;
+    // Ack-gated: next frame only sends after server confirms previous received.
+    // This naturally throttles to network speed without ever filling the buffer.
     socket.emit('video-frame', { roomId, frame }, () => { sending = false; });
-  }, 200); // 5 fps — keeps Socket.IO buffer clear over Railway relay
+  }, 150);
 }
 
 function stopVideoRelay() {
@@ -842,8 +847,8 @@ function initSocket() {
   });
 
   socket.on('peer-left', () => {
-    document.getElementById('call-conn-status').textContent = '⚠️ Partner disconnected.';
-    document.getElementById('end-call-btn').textContent = '✕ Close';
+    document.getElementById('call-conn-status').textContent = '⚠️ Partner disconnected — returning to home in 3s…';
+    setTimeout(() => { if (callActive) endCall(); }, 3000);
   });
 
   socket.on('call-error', d => {
@@ -934,6 +939,7 @@ function copyRoomLink() {
 function cancelCall() {
   cleanupPeer();
   if (localCallStream) { localCallStream.getTracks().forEach(t => t.stop()); localCallStream = null; }
+  if (socket) { socket.disconnect(); socket = null; roomId = null; }
   document.getElementById('call-modal-overlay').classList.remove('open');
 }
 
@@ -1007,21 +1013,28 @@ function endCall() {
   if (callMicOn) stopCallMic();
   cleanupPeer();
   if (localCallStream) { localCallStream.getTracks().forEach(t => t.stop()); localCallStream = null; }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (loopTimer) { clearInterval(loopTimer); loopTimer = null; }
+  if (socket) { socket.disconnect(); socket = null; roomId = null; }
+
+  // Reset call UI
   document.getElementById('call-screen').classList.remove('active');
   document.getElementById('panels').style.display       = '';
   document.getElementById('end-call-btn').style.display = 'none';
+  document.getElementById('topbar-call-btn').style.display = '';
   document.getElementById('local-sign-overlay').textContent  = '';
   document.getElementById('remote-sign-overlay').textContent = '';
   document.getElementById('call-transcript-box').innerHTML   = '';
   const ri = document.getElementById('remote-vid-relay');
   ri.src = ''; ri.style.display = 'none';
-  document.getElementById('topbar-call-btn').style.display = '';
   const myBox = document.getElementById('call-my-speech-box');
-  myBox.textContent = 'Your speech will appear here…';
-  myBox.classList.add('placeholder');
+  myBox.textContent = 'Your speech will appear here…'; myBox.classList.add('placeholder');
   const spBox = document.getElementById('call-partner-speech-box');
-  spBox.textContent = 'Partner\'s speech will appear here…';
-  spBox.classList.add('placeholder');
+  spBox.textContent = 'Partner\'s speech will appear here…'; spBox.classList.add('placeholder');
+
+  // Return to landing page
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('landing').classList.remove('gone');
 }
 
 function startCallLoop() {
@@ -1029,9 +1042,10 @@ function startCallLoop() {
   callLoopTimer = setInterval(async () => {
     if (!callActive || callPending || callVid.readyState < 2) return;
     callPending = true;
-    callCapCanvas.width  = callVid.videoWidth  || 640;
-    callCapCanvas.height = callVid.videoHeight || 480;
-    callCapCtx.drawImage(callVid, 0, 0);
+    const sw = Math.min(callVid.videoWidth || 640, 640);
+    const sh = Math.round(sw * (callVid.videoHeight || 480) / (callVid.videoWidth || 640));
+    callCapCanvas.width = sw; callCapCanvas.height = sh;
+    callCapCtx.drawImage(callVid, 0, 0, sw, sh);
     try {
       const resp = await fetch('/predict', {
         method: 'POST',

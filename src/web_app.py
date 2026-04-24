@@ -154,33 +154,6 @@ def on_join(data):
         emit('peer-ready', {}, to=initiator_sid)
 
 
-@socketio.on('offer')
-def on_offer(data):
-    rid = data.get('roomId', '')
-    with _rooms_lock:
-        others = list(_rooms.get(rid, set()) - {request.sid})
-    for sid in others:
-        emit('offer', data, to=sid)
-
-
-@socketio.on('answer')
-def on_answer(data):
-    rid = data.get('roomId', '')
-    with _rooms_lock:
-        others = list(_rooms.get(rid, set()) - {request.sid})
-    for sid in others:
-        emit('answer', data, to=sid)
-
-
-@socketio.on('ice-candidate')
-def on_ice(data):
-    rid = data.get('roomId', '')
-    with _rooms_lock:
-        others = list(_rooms.get(rid, set()) - {request.sid})
-    for sid in others:
-        emit('ice-candidate', data, to=sid)
-
-
 @socketio.on('call-speech')
 def on_call_speech(data):
     rid = data.get('roomId', '')

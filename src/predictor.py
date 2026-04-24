@@ -12,13 +12,27 @@ MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'sign_model
 mp_hands = mp.solutions.hands
 
 
+def _normalize_hand(coords_63):
+    """
+    Normalize 21-landmark hand coords to be position- and scale-invariant.
+    Centers on wrist (landmark 0), scales by wrist-to-middle-MCP distance (landmark 9).
+    This makes predictions the same regardless of where/how far the hand is from the camera.
+    """
+    pts = np.array(coords_63).reshape(21, 3)
+    pts -= pts[0]                        # translate: wrist becomes origin
+    scale = np.linalg.norm(pts[9])       # palm size = wrist → middle finger base
+    if scale > 1e-6:
+        pts /= scale
+    return pts.flatten().tolist()
+
+
 def extract_landmarks(result):
     """
-    Extract landmarks from a MediaPipe result into a fixed 126-feature vector.
+    Extract normalized landmarks from a MediaPipe result into a fixed 126-feature vector.
     Two hands × 21 landmarks × 3 (x, y, z) = 126.
-    Hands are ordered left-to-right by wrist x-coordinate so ordering is
-    consistent across frames regardless of detection order.
-    Pads with zeros if fewer than 2 hands are detected.
+    Each hand is normalized: wrist-centered and palm-scaled so predictions are
+    invariant to hand position in frame and distance from camera.
+    Hands are ordered left-to-right by wrist x. Pads with zeros for missing hands.
     """
     hand_data = []
     if result.multi_hand_landmarks:
@@ -33,9 +47,8 @@ def extract_landmarks(result):
 
     features = []
     for _, coords in hand_data:
-        features.extend(coords)
+        features.extend(_normalize_hand(coords))
 
-    # Pad to exactly 2 hands worth of features
     features.extend([0.0] * (126 - len(features)))
     return features[:126]
 

@@ -60,11 +60,6 @@ def create_room():
     return jsonify({'roomId': rid})
 
 
-@app.route('/sign_poses')
-def sign_poses():
-    return send_from_directory(_ASSETS, 'sign_poses.json', mimetype='application/json')
-
-
 @app.route('/signs/<letter>')
 def serve_sign(letter):
     """Serve locally stored ASL fingerspelling GIFs."""

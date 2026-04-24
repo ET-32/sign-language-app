@@ -322,7 +322,11 @@ body {
   flex-shrink: 0; display: flex; flex-direction: column;
   align-items: center; gap: 10px;
 }
-#signit-canvas { border-radius: 12px; border: 1px solid var(--border); display: block; }
+#signit-gif {
+  width: 260px; height: 240px; object-fit: contain; display: block;
+  border-radius: 12px; border: 1px solid var(--border);
+  background: #060c14; transition: opacity 0.25s;
+}
 .signit-name {
   font-size: 22px; font-weight: 800; color: var(--accent);
   letter-spacing: 2px; text-align: center; min-height: 30px;
@@ -522,7 +526,7 @@ body {
     <button class="modal-close" onclick="closeSignIt()">×</button>
 
     <div id="signit-canvas-wrap">
-      <canvas id="signit-canvas" width="260" height="300"></canvas>
+      <img id="signit-gif" alt="ASL sign" />
       <div class="signit-name" id="signit-name">—</div>
       <div class="signit-desc" id="signit-desc">Select a sign from the list</div>
       <div class="signit-hint" id="signit-hint"></div>
@@ -1078,23 +1082,39 @@ function appendCallTranscript(who, label, color) {
 })();
 
 // ─────────────────────────────────────────────────────────────────────────
-//  SIGN IT — AI hand skeleton: hearing person clicks a sign to see the pose
+//  SIGN IT — real ASL GIFs so hearing person can learn & copy signs
 // ─────────────────────────────────────────────────────────────────────────
+
+const SIGN_GIFS = {
+  'HELLO':     'https://media.giphy.com/media/3o7TKNKOfKlIhbD3gY/giphy.gif',
+  'GOOD':      'https://media.giphy.com/media/s54cTulj6JbU0GOGg4/giphy.gif',
+  'THANK YOU': 'https://media.giphy.com/media/NmVaUMzOcJ5Hq3NASc/giphy.gif',
+  'YES':       'https://media.giphy.com/media/HPzibLwAhOP6ozRvSb/giphy.gif',
+  'NO':        'https://media.giphy.com/media/mmqzvILQtwTsnYGl2X/giphy.gif',
+  'OK':        'https://media.giphy.com/media/Kf4XFOV57AOhwCHOrT/giphy.gif',
+  'I LOVE YOU':'https://media.giphy.com/media/UNyHCOe7UFeJa/giphy.gif',
+  'CALL ME':   'https://media.giphy.com/media/TYczLLvX65AEf9pWgL/giphy.gif',
+  'PEACE':     'https://media.giphy.com/media/MAfLaWDgQkZ7SbTEV5/giphy.gif',
+  'SORRY':     'https://media.giphy.com/media/kyFwwIgEfrgUo/giphy.gif',
+  'PLEASE':    'https://media.giphy.com/media/17nGB1qPI1aIXU1NRP/giphy.gif',
+  'HELP':      'https://media.giphy.com/media/3oz8xxZjw8HJxLcmD6/giphy.gif',
+  'STOP':      'https://media.giphy.com/media/Icr3nzwbckTwA/giphy.gif',
+};
 
 const SIGN_INFO = {
   'HELLO':     'Open flat hand near forehead, fingers together — like a salute',
   'GOOD':      'Flat hand at chin, then extend it forward',
-  'THANK YOU': 'Flat hand at lips/chin, extend forward and slightly down',
+  'THANK YOU': 'Flat hand at lips, extend forward and slightly down',
   'YES':       'Closed fist — hold steady (S-handshape)',
   'NO':        'Index + middle fingers bent down touching thumb',
   'OK':        'Index fingertip touches thumb tip, other 3 fingers up',
-  'I LOVE YOU':'Thumb + index + pinky extended (ILY handshape)',
-  'CALL ME':   'Pinky + thumb extended, other fingers curled (Y-shape)',
+  'I LOVE YOU':'Thumb + index + pinky extended — ILY handshape',
+  'CALL ME':   'Pinky + thumb out, other fingers curled — Y-shape',
   'PEACE':     'Index + middle fingers raised in a V shape',
-  'SORRY':     'Closed fist held flat against chest',
-  'PLEASE':    'Flat open palm pressed against chest',
-  'HELP':      'Thumbs-up right hand resting on flat left palm — two hands',
-  'STOP':      'Right open hand pressed perpendicular into left palm — two hands',
+  'SORRY':     'Closed fist rotated against chest',
+  'PLEASE':    'Flat open palm rubbed in a circle on chest',
+  'HELP':      'Thumbs-up right hand lifted by flat left palm',
+  'STOP':      'Right open hand chopped down into left palm',
 };
 
 const SIGN_ORDER = [
@@ -1102,24 +1122,10 @@ const SIGN_ORDER = [
   'OK','GOOD','PEACE','I LOVE YOU','CALL ME','HELP','STOP',
 ];
 
-const HAND_CONNECTIONS = [
-  [0,1],[1,2],[2,3],[3,4],
-  [0,5],[5,6],[6,7],[7,8],
-  [0,9],[9,10],[10,11],[11,12],
-  [0,13],[13,14],[14,15],[15,16],
-  [0,17],[17,18],[18,19],[19,20],
-  [5,9],[9,13],[13,17],
-];
+let activeSignBtn = null;
 
-let signPoses = null, activeSignBtn = null;
-
-async function openSignIt() {
+function openSignIt() {
   document.getElementById('signit-overlay').classList.add('open');
-  if (!signPoses) {
-    try {
-      signPoses = await fetch('/sign_poses').then(r => r.json());
-    } catch(_) { signPoses = {}; }
-  }
   buildSignGrid();
 }
 function closeSignIt() { document.getElementById('signit-overlay').classList.remove('open'); }
@@ -1142,67 +1148,12 @@ function showSign(sign, btn) {
   btn.classList.add('active'); activeSignBtn = btn;
   document.getElementById('signit-name').textContent = sign;
   document.getElementById('signit-desc').textContent = SIGN_INFO[sign] || '';
-  const pose = signPoses && signPoses[sign];
-  document.getElementById('signit-hint').textContent = pose
-    ? (pose.two_handed ? '🤲 Two-handed sign' : '✋ One-handed sign') : '';
-  if (pose) drawPoseOnCanvas(document.getElementById('signit-canvas'), pose);
-}
-
-function drawPoseOnCanvas(canvas, pose) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-  const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.7);
-  bg.addColorStop(0, '#0d1a2e'); bg.addColorStop(1, '#060c14');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-
-  const h1 = handPts(pose.h1);
-  const h2 = pose.two_handed ? handPts(pose.h2) : null;
-  if (!pose.two_handed) {
-    drawHandFit(ctx, h1, '#00BFFF', 0, 0, W, H);
-  } else {
-    drawHandFit(ctx, h1, '#00BFFF', 0, 0, W / 2, H);
-    drawHandFit(ctx, h2, '#3fb950', W / 2, 0, W / 2, H);
-    ctx.strokeStyle = '#ffffff18'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(W/2, 16); ctx.lineTo(W/2, H-16); ctx.stroke();
-  }
-}
-
-function handPts(coords) {
-  const pts = [];
-  for (let i = 0; i < 21; i++) pts.push({ x: coords[i*3], y: coords[i*3+1] });
-  return pts;
-}
-
-function drawHandFit(ctx, pts, color, ox, oy, aw, ah) {
-  let mnX = Infinity, mxX = -Infinity, mnY = Infinity, mxY = -Infinity;
-  pts.forEach(p => { mnX=Math.min(mnX,p.x); mxX=Math.max(mxX,p.x); mnY=Math.min(mnY,p.y); mxY=Math.max(mxY,p.y); });
-  const pad = 26, rx = mxX-mnX||1, ry = mxY-mnY||1;
-  const sc = Math.min((aw-pad*2)/rx, (ah-pad*2)/ry);
-  const dx = ox+(aw-rx*sc)/2-mnX*sc, dy = oy+(ah-ry*sc)/2-mnY*sc;
-  const tx = x => x*sc+dx, ty = y => y*sc+dy;
-
-  // Bones
-  ctx.lineCap = 'round'; ctx.lineWidth = 3;
-  HAND_CONNECTIONS.forEach(([a,b]) => {
-    ctx.strokeStyle = color + 'bb';
-    ctx.beginPath(); ctx.moveTo(tx(pts[a].x),ty(pts[a].y)); ctx.lineTo(tx(pts[b].x),ty(pts[b].y)); ctx.stroke();
-  });
-
-  // Joints
-  const TIPS = new Set([4,8,12,16,20]);
-  pts.forEach((p, i) => {
-    const r = i===0 ? 8 : TIPS.has(i) ? 5 : 4;
-    ctx.beginPath(); ctx.arc(tx(p.x), ty(p.y), r, 0, Math.PI*2);
-    ctx.fillStyle = (i===0||TIPS.has(i)) ? color : '#ddeeff';
-    ctx.fill();
-    if (i!==0 && !TIPS.has(i)) { ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke(); }
-  });
-
-  // Wrist glow
-  ctx.shadowColor = color; ctx.shadowBlur = 18;
-  ctx.beginPath(); ctx.arc(tx(pts[0].x), ty(pts[0].y), 8, 0, Math.PI*2);
-  ctx.fillStyle = color; ctx.fill(); ctx.shadowBlur = 0;
+  document.getElementById('signit-hint').textContent = '';
+  const gif = document.getElementById('signit-gif');
+  gif.style.opacity = '0';
+  gif.src = SIGN_GIFS[sign] || '';
+  gif.onload  = () => { gif.style.opacity = '1'; };
+  gif.onerror = () => { document.getElementById('signit-hint').textContent = 'Could not load — check your connection'; };
 }
 </script>
 </body>

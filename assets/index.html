@@ -304,82 +304,47 @@ body {
 }
 .modal-close:hover { color: var(--text); }
 
-/* ── Sign Guide Modal ────────────────────────────────────────────── */
-#guide-overlay {
+/* ── Sign It Modal ───────────────────────────────────────────────── */
+#signit-overlay {
   display: none; position: fixed; inset: 0;
   background: #00000099; z-index: 100;
   align-items: center; justify-content: center;
 }
-#guide-overlay.open { display: flex; }
-#guide-modal {
+#signit-overlay.open { display: flex; }
+#signit-modal {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
-  padding: 24px; width: 720px; max-width: 96vw;
+  padding: 24px; width: 700px; max-width: 96vw;
   display: flex; gap: 24px; position: relative;
   box-shadow: 0 24px 64px #00000077;
-  max-height: 90vh; overflow: auto;
+  max-height: 90vh;
 }
-#guide-left {
+#signit-canvas-wrap {
   flex-shrink: 0; display: flex; flex-direction: column;
-  align-items: center; width: 280px;
+  align-items: center; gap: 10px;
 }
-#guide-img-box {
-  width: 280px; height: 320px; border-radius: 12px;
-  background: #08101f; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; overflow: hidden;
-  border: 1px solid var(--border);
+#signit-canvas { border-radius: 12px; border: 1px solid var(--border); display: block; }
+.signit-name {
+  font-size: 22px; font-weight: 800; color: var(--accent);
+  letter-spacing: 2px; text-align: center; min-height: 30px;
 }
-#guide-img {
-  width: 100%; height: 100%; object-fit: contain; display: none; border-radius: 12px;
+.signit-desc {
+  font-size: 12px; color: var(--text-muted); text-align: center;
+  max-width: 260px; line-height: 1.6; min-height: 40px;
 }
-#guide-img-placeholder {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 8px; padding: 20px; text-align: center;
+.signit-hint { font-size: 11px; color: var(--text-dim); text-align: center; }
+#signit-right {
+  flex: 1; display: flex; flex-direction: column; gap: 12px;
+  min-width: 0; overflow-y: auto;
 }
-#guide-img-placeholder .ph-icon { font-size: 56px; }
-#guide-img-placeholder .ph-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
-#guide-img-loading {
-  display: none; flex-direction: column; align-items: center; gap: 10px;
-}
-.img-spinner {
-  width: 36px; height: 36px; border: 3px solid var(--border);
-  border-top-color: var(--accent); border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-#guide-sign-name {
-  text-align: center; font-size: 22px; font-weight: 800;
-  color: var(--accent); margin-top: 10px; letter-spacing: 2px; min-height: 32px;
-}
-#guide-savvy-link {
-  display: none; margin-top: 8px; padding: 6px 16px;
-  border-radius: 8px; border: 1px solid var(--border);
+#signit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.signit-btn {
+  padding: 10px 6px; border-radius: 10px; border: 1px solid var(--border);
   background: var(--btn); color: var(--text); cursor: pointer;
-  font-size: 12px; font-weight: 500; text-decoration: none;
-  transition: all 0.18s; text-align: center;
+  font-size: 12px; font-weight: 600; text-align: center;
+  transition: all 0.18s; line-height: 1.3;
 }
-#guide-savvy-link:hover { background: var(--btn-hover); border-color: var(--accent); }
-
-#guide-right { flex: 1; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-#guide-right h2 { font-size: 18px; font-weight: 700; }
-#guide-right .sub { font-size: 13px; color: var(--text-muted); margin-top: -8px; }
-.guide-row { display: flex; gap: 8px; }
-#guide-input {
-  flex: 1; padding: 10px 14px; border-radius: 8px;
-  border: 1px solid var(--border2); background: var(--bg);
-  color: var(--text); font-size: 15px; outline: none; transition: border 0.2s;
-}
-#guide-input:focus { border-color: var(--accent); }
-#guide-status { font-size: 13px; color: var(--text-muted); min-height: 20px; }
-.bank-title {
-  font-size: 11px; font-weight: 700; letter-spacing: 1px;
-  text-transform: uppercase; color: var(--text-muted);
-}
-#word-bank { display: flex; flex-wrap: wrap; gap: 6px; overflow-y: auto; max-height: 200px; }
-.chip {
-  padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);
-  background: var(--btn); font-size: 12px; cursor: pointer;
-  color: var(--text); transition: all 0.15s;
-}
-.chip:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.signit-btn:hover { background: var(--btn-hover); border-color: var(--accent); color: var(--accent); }
+.signit-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
@@ -393,9 +358,8 @@ body {
   .hero-title { font-size: 34px; text-align: center; }
   .hero-sub { text-align: center; }
   .activate-btn { padding: 15px 44px; font-size: 17px; }
-  #guide-modal { flex-direction: column; align-items: center; }
-  #guide-left { width: 100%; }
-  #guide-img-box { width: 100%; height: 240px; }
+  #signit-modal { flex-direction: column; align-items: center; }
+  #signit-canvas { width: 100%; height: auto; }
   .topbar-right { gap: 4px; }
   .icon-btn { padding: 5px 9px; font-size: 12px; }
   #call-videos { grid-template-columns: 1fr; }
@@ -426,7 +390,7 @@ body {
     <div class="topbar-right">
       <button class="icon-btn" onclick="goHome()">⬅ Home</button>
       <button class="icon-btn" id="topbar-call-btn" onclick="openCallModal()">📹 Video Call</button>
-      <button class="icon-btn"                  onclick="openGuide()">👋 Sign Guide</button>
+      <button class="icon-btn"                  onclick="openSignIt()">🤟 Sign It</button>
       <button class="icon-btn" id="sound-btn"  onclick="toggleSound()">🔊 Sound On</button>
       <button class="icon-btn" id="theme-btn"  onclick="toggleTheme()">🌙 Dark</button>
       <button class="icon-btn danger" id="end-call-btn" onclick="endCall()" style="display:none;">📵 End Call</button>
@@ -552,44 +516,26 @@ body {
   </div>
 </div>
 
-<!-- ── Sign Guide Modal ───────────────────────────────────────────── -->
-<div id="guide-overlay" onclick="closeBg(event)">
-  <div id="guide-modal">
-    <button class="modal-close" onclick="closeGuide()">×</button>
+<!-- ── Sign It Modal ─────────────────────────────────────────────── -->
+<div id="signit-overlay" onclick="closeBgSignIt(event)">
+  <div id="signit-modal">
+    <button class="modal-close" onclick="closeSignIt()">×</button>
 
-    <div id="guide-left">
-      <div id="guide-img-box">
-        <!-- Loading spinner -->
-        <div id="guide-img-loading">
-          <div class="img-spinner"></div>
-          <div style="font-size:12px;color:var(--text-muted);">Loading…</div>
-        </div>
-        <!-- Actual sign image (GIF from ASL dictionary) -->
-        <img id="guide-img" alt="ASL Sign"
-             onload="onGuideImgLoad()" onerror="onGuideImgError()" />
-        <!-- Placeholder before any search -->
-        <div id="guide-img-placeholder">
-          <div class="ph-icon">🤟</div>
-          <div class="ph-text">Type a word on the right<br>to see the ASL sign</div>
-        </div>
-      </div>
-      <div id="guide-letters-display"
-           style="min-height:26px;text-align:center;margin-top:8px;font-family:monospace;letter-spacing:2px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;"></div>
-      <div id="guide-sign-name"></div>
-      <a id="guide-savvy-link" href="#" target="_blank">🔗 Watch actual sign on SigningSavvy</a>
+    <div id="signit-canvas-wrap">
+      <canvas id="signit-canvas" width="260" height="300"></canvas>
+      <div class="signit-name" id="signit-name">—</div>
+      <div class="signit-desc" id="signit-desc">Select a sign from the list</div>
+      <div class="signit-hint" id="signit-hint"></div>
     </div>
 
-    <div id="guide-right">
-      <h2>👋 Sign Guide</h2>
-      <p class="sub">Type any word to see it fingerspelled letter by letter — real ASL hand photos</p>
-      <div class="guide-row">
-        <input id="guide-input" placeholder="e.g. hello, yes, water, love…"
-               onkeydown="if(event.key==='Enter') lookupSign()" />
-        <button class="btn-accent" onclick="lookupSign()">Show</button>
+    <div id="signit-right">
+      <div>
+        <h2 style="font-size:18px;font-weight:700;">🤟 Sign It</h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">
+          Press any sign to see the exact hand pose — copy it to communicate with the deaf person
+        </p>
       </div>
-      <div id="guide-status"></div>
-      <div class="bank-title">Quick signs</div>
-      <div id="word-bank"></div>
+      <div id="signit-grid"></div>
     </div>
   </div>
 </div>
@@ -1132,108 +1078,131 @@ function appendCallTranscript(who, label, color) {
 })();
 
 // ─────────────────────────────────────────────────────────────────────────
-//  SIGN GUIDE — ASL fingerspelling photos (real images, letter by letter)
+//  SIGN IT — AI hand skeleton: hearing person clicks a sign to see the pose
 // ─────────────────────────────────────────────────────────────────────────
 
-const KNOWN_WORDS = [
-  'HELLO','GOODBYE','THANK YOU','PLEASE','SORRY','YES','NO',
-  'HELP','STOP','WATER','GOOD','BAD','MORE','YOU','I','LOVE',
-  'WHERE','WHAT','NAME','EAT','DRINK','FAMILY','FRIEND','HOME',
+const SIGN_INFO = {
+  'HELLO':     'Open flat hand near forehead, fingers together — like a salute',
+  'GOOD':      'Flat hand at chin, then extend it forward',
+  'THANK YOU': 'Flat hand at lips/chin, extend forward and slightly down',
+  'YES':       'Closed fist — hold steady (S-handshape)',
+  'NO':        'Index + middle fingers bent down touching thumb',
+  'OK':        'Index fingertip touches thumb tip, other 3 fingers up',
+  'I LOVE YOU':'Thumb + index + pinky extended (ILY handshape)',
+  'CALL ME':   'Pinky + thumb extended, other fingers curled (Y-shape)',
+  'PEACE':     'Index + middle fingers raised in a V shape',
+  'SORRY':     'Closed fist held flat against chest',
+  'PLEASE':    'Flat open palm pressed against chest',
+  'HELP':      'Thumbs-up right hand resting on flat left palm — two hands',
+  'STOP':      'Right open hand pressed perpendicular into left palm — two hands',
+};
+
+const SIGN_ORDER = [
+  'HELLO','THANK YOU','PLEASE','SORRY','YES','NO',
+  'OK','GOOD','PEACE','I LOVE YOU','CALL ME','HELP','STOP',
 ];
 
-let guideTimer  = null;   // letter animation interval
-let guideLetters = [];
-let guideIdx    = 0;
+const HAND_CONNECTIONS = [
+  [0,1],[1,2],[2,3],[3,4],
+  [0,5],[5,6],[6,7],[7,8],
+  [0,9],[9,10],[10,11],[11,12],
+  [0,13],[13,14],[14,15],[15,16],
+  [0,17],[17,18],[18,19],[19,20],
+  [5,9],[9,13],[13,17],
+];
 
-function openGuide() {
-  document.getElementById('guide-overlay').classList.add('open');
-  buildWordBank();
-}
-function closeGuide() {
-  stopGuideAnim();
-  document.getElementById('guide-overlay').classList.remove('open');
-}
-function closeBg(e) { if (e.target === document.getElementById('guide-overlay')) closeGuide(); }
+let signPoses = null, activeSignBtn = null;
 
-function stopGuideAnim() {
-  if (guideTimer) { clearInterval(guideTimer); guideTimer = null; }
+async function openSignIt() {
+  document.getElementById('signit-overlay').classList.add('open');
+  if (!signPoses) {
+    try {
+      signPoses = await fetch('/sign_poses').then(r => r.json());
+    } catch(_) { signPoses = {}; }
+  }
+  buildSignGrid();
 }
+function closeSignIt() { document.getElementById('signit-overlay').classList.remove('open'); }
+function closeBgSignIt(e) { if (e.target === document.getElementById('signit-overlay')) closeSignIt(); }
 
-function buildWordBank() {
-  const bank = document.getElementById('word-bank');
-  if (bank.children.length) return;
-  KNOWN_WORDS.forEach(w => {
-    const c = document.createElement('div');
-    c.className = 'chip'; c.textContent = w;
-    c.onclick = () => { document.getElementById('guide-input').value = w; lookupSign(); };
-    bank.appendChild(c);
+function buildSignGrid() {
+  const grid = document.getElementById('signit-grid');
+  if (grid.children.length) return;
+  SIGN_ORDER.forEach(sign => {
+    const btn = document.createElement('button');
+    btn.className = 'signit-btn'; btn.textContent = sign;
+    btn.onclick = () => showSign(sign, btn);
+    grid.appendChild(btn);
   });
-  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(ch => {
-    const c = document.createElement('div');
-    c.className = 'chip'; c.textContent = ch;
-    c.onclick = () => { document.getElementById('guide-input').value = ch; lookupSign(); };
-    bank.appendChild(c);
-  });
+  showSign(SIGN_ORDER[0], grid.children[0]);
 }
 
-function lookupSign() {
-  const raw = document.getElementById('guide-input').value.trim();
-  const key = raw.toUpperCase().replace(/[^A-Z ]/g, '').trim();
-  if (!key) return;
+function showSign(sign, btn) {
+  if (activeSignBtn) activeSignBtn.classList.remove('active');
+  btn.classList.add('active'); activeSignBtn = btn;
+  document.getElementById('signit-name').textContent = sign;
+  document.getElementById('signit-desc').textContent = SIGN_INFO[sign] || '';
+  const pose = signPoses && signPoses[sign];
+  document.getElementById('signit-hint').textContent = pose
+    ? (pose.two_handed ? '🤲 Two-handed sign' : '✋ One-handed sign') : '';
+  if (pose) drawPoseOnCanvas(document.getElementById('signit-canvas'), pose);
+}
 
-  stopGuideAnim();
+function drawPoseOnCanvas(canvas, pose) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.7);
+  bg.addColorStop(0, '#0d1a2e'); bg.addColorStop(1, '#060c14');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-  document.getElementById('guide-sign-name').textContent = key;
-  document.getElementById('guide-savvy-link').href        =
-    `https://www.signingsavvy.com/search/${encodeURIComponent(raw)}`;
-  document.getElementById('guide-savvy-link').style.display = '';
-  document.getElementById('guide-img-placeholder').style.display = 'none';
-
-  // Build letter list (skip spaces)
-  guideLetters = key.replace(/ /g, '').split('').filter(c => /[A-Z]/.test(c));
-  guideIdx     = 0;
-
-  if (guideLetters.length === 0) return;
-
-  if (guideLetters.length === 1) {
-    // Single letter — show static
-    showGuideLetter(0);
-    updateLetterBar();
-    document.getElementById('guide-status').textContent =
-      'ASL handshape for "' + key + '" — real photo from ASL University';
+  const h1 = handPts(pose.h1);
+  const h2 = pose.two_handed ? handPts(pose.h2) : null;
+  if (!pose.two_handed) {
+    drawHandFit(ctx, h1, '#00BFFF', 0, 0, W, H);
   } else {
-    // Word — animate letter by letter
-    showGuideLetter(0);
-    updateLetterBar();
-    document.getElementById('guide-status').textContent =
-      `Fingerspelling: ${guideLetters.join(' · ')} — loops continuously`;
-    guideTimer = setInterval(() => {
-      guideIdx = (guideIdx + 1) % guideLetters.length;
-      showGuideLetter(guideIdx);
-      updateLetterBar();
-    }, 900);
+    drawHandFit(ctx, h1, '#00BFFF', 0, 0, W / 2, H);
+    drawHandFit(ctx, h2, '#3fb950', W / 2, 0, W / 2, H);
+    ctx.strokeStyle = '#ffffff18'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W/2, 16); ctx.lineTo(W/2, H-16); ctx.stroke();
   }
 }
 
-function showGuideLetter(idx) {
-  const letter = guideLetters[idx].toLowerCase();
-  const img    = document.getElementById('guide-img');
-  img.src      = `/signs/${letter}`;   // server appends .gif
-  img.style.display = 'block';
-  document.getElementById('guide-img-loading').style.display = 'none';
+function handPts(coords) {
+  const pts = [];
+  for (let i = 0; i < 21; i++) pts.push({ x: coords[i*3], y: coords[i*3+1] });
+  return pts;
 }
 
-function updateLetterBar() {
-  const bar = document.getElementById('guide-letters-display');
-  if (!bar) return;
-  bar.innerHTML = guideLetters.map((l, i) =>
-    `<span style="
-      color:${i === guideIdx ? 'var(--accent)' : 'var(--text-dim)'};
-      font-weight:${i === guideIdx ? '800' : '400'};
-      font-size:${i === guideIdx ? '18px' : '14px'};
-      transition:all 0.2s;
-    ">${l}</span>`
-  ).join('<span style="color:var(--border2);margin:0 2px">·</span>');
+function drawHandFit(ctx, pts, color, ox, oy, aw, ah) {
+  let mnX = Infinity, mxX = -Infinity, mnY = Infinity, mxY = -Infinity;
+  pts.forEach(p => { mnX=Math.min(mnX,p.x); mxX=Math.max(mxX,p.x); mnY=Math.min(mnY,p.y); mxY=Math.max(mxY,p.y); });
+  const pad = 26, rx = mxX-mnX||1, ry = mxY-mnY||1;
+  const sc = Math.min((aw-pad*2)/rx, (ah-pad*2)/ry);
+  const dx = ox+(aw-rx*sc)/2-mnX*sc, dy = oy+(ah-ry*sc)/2-mnY*sc;
+  const tx = x => x*sc+dx, ty = y => y*sc+dy;
+
+  // Bones
+  ctx.lineCap = 'round'; ctx.lineWidth = 3;
+  HAND_CONNECTIONS.forEach(([a,b]) => {
+    ctx.strokeStyle = color + 'bb';
+    ctx.beginPath(); ctx.moveTo(tx(pts[a].x),ty(pts[a].y)); ctx.lineTo(tx(pts[b].x),ty(pts[b].y)); ctx.stroke();
+  });
+
+  // Joints
+  const TIPS = new Set([4,8,12,16,20]);
+  pts.forEach((p, i) => {
+    const r = i===0 ? 8 : TIPS.has(i) ? 5 : 4;
+    ctx.beginPath(); ctx.arc(tx(p.x), ty(p.y), r, 0, Math.PI*2);
+    ctx.fillStyle = (i===0||TIPS.has(i)) ? color : '#ddeeff';
+    ctx.fill();
+    if (i!==0 && !TIPS.has(i)) { ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke(); }
+  });
+
+  // Wrist glow
+  ctx.shadowColor = color; ctx.shadowBlur = 18;
+  ctx.beginPath(); ctx.arc(tx(pts[0].x), ty(pts[0].y), 8, 0, Math.PI*2);
+  ctx.fillStyle = color; ctx.fill(); ctx.shadowBlur = 0;
 }
 </script>
 </body>

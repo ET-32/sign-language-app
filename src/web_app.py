@@ -159,6 +159,15 @@ def on_video_frame(data):
         emit('peer-video-frame', {'frame': data.get('frame')}, to=sid)
 
 
+@socketio.on('sign-trigger')
+def on_sign_trigger(data):
+    rid = data.get('roomId', '')
+    with _rooms_lock:
+        others = list(_rooms.get(rid, set()) - {request.sid})
+    for sid in others:
+        emit('peer-sign-trigger', data, to=sid)
+
+
 @socketio.on('sign-update')
 def on_sign_update(data):
     rid = data.get('roomId', '')

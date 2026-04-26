@@ -304,6 +304,22 @@ body {
 }
 .modal-close:hover { color: var(--text); }
 
+/* ── Incoming Sign Popup (shown on deaf user's screen) ──────────── */
+#incoming-sign-popup {
+  display: none; position: fixed; bottom: 80px; right: 20px;
+  background: var(--bg2); border: 1px solid var(--accent);
+  border-radius: 16px; padding: 14px 14px 10px;
+  flex-direction: column; align-items: center; gap: 8px;
+  z-index: 500; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  min-width: 180px; animation: slideUp 0.3s ease;
+}
+#incoming-sign-popup.show { display: flex; }
+#incoming-sign-popup img { width: 160px; height: 140px; object-fit: contain; border-radius: 8px; background: #060c14; }
+#incoming-sign-popup .isp-label { font-size: 17px; font-weight: 700; color: var(--accent); }
+#incoming-sign-popup .isp-sub   { font-size: 11px; color: var(--text-muted); }
+#incoming-sign-popup .isp-close { position: absolute; top: 6px; right: 10px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
 /* ── Sign It Modal ───────────────────────────────────────────────── */
 #signit-overlay {
   display: none; position: fixed; inset: 0;
@@ -518,6 +534,14 @@ body {
       <button class="btn btn-ghost" style="width:100%;" onclick="cancelCall()">Cancel</button>
     </div>
   </div>
+</div>
+
+<!-- ── Incoming Sign Popup ────────────────────────────────────────── -->
+<div id="incoming-sign-popup">
+  <button class="isp-close" onclick="closeIncomingSign()">×</button>
+  <img id="incoming-sign-gif" alt="Partner's sign" />
+  <div class="isp-label" id="incoming-sign-label"></div>
+  <div class="isp-sub">Partner is signing to you</div>
 </div>
 
 <!-- ── Sign It Modal ─────────────────────────────────────────────── -->
@@ -814,6 +838,10 @@ function initSocket() {
   socket.on('peer-sign', d => {
     document.getElementById('remote-sign-overlay').textContent = d.label || '';
     if (d.label) appendCallTranscript('Partner', d.label, 'var(--green)');
+  });
+
+  socket.on('peer-sign-trigger', d => {
+    if (d.sign) showIncomingSign(d.sign);
   });
 
   socket.on('peer-speech', d => {
@@ -1154,6 +1182,21 @@ function showSign(sign, btn) {
   gif.src = SIGN_GIFS[sign] || '';
   gif.onload  = () => { gif.style.opacity = '1'; };
   gif.onerror = () => { document.getElementById('signit-hint').textContent = 'Could not load — check your connection'; };
+  if (socket && roomId) socket.emit('sign-trigger', { roomId, sign });
+}
+
+let incomingSignTimer = null;
+function showIncomingSign(sign) {
+  const popup = document.getElementById('incoming-sign-popup');
+  document.getElementById('incoming-sign-gif').src = SIGN_GIFS[sign] || '';
+  document.getElementById('incoming-sign-label').textContent = sign;
+  popup.classList.add('show');
+  if (incomingSignTimer) clearTimeout(incomingSignTimer);
+  incomingSignTimer = setTimeout(closeIncomingSign, 5000);
+}
+function closeIncomingSign() {
+  document.getElementById('incoming-sign-popup').classList.remove('show');
+  if (incomingSignTimer) { clearTimeout(incomingSignTimer); incomingSignTimer = null; }
 }
 </script>
 </body>

@@ -20,8 +20,13 @@ _ASSETS  = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets
 _DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'signai.db'))
 
 app = Flask(__name__)
-app.config['SECRET_KEY']                  = os.environ.get('SECRET_KEY', 'signai-dev-key-change-in-prod')
-app.config['SQLALCHEMY_DATABASE_URI']     = os.environ.get('DATABASE_URL', f'sqlite:///{_DB_PATH}')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'signai-dev-key-change-in-prod')
+
+# Railway (and Heroku) supply postgres:// but SQLAlchemy 2.x needs postgresql://
+_db_url = os.environ.get('DATABASE_URL', f'sqlite:///{_DB_PATH}')
+if _db_url.startswith('postgres://'):
+    _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI']        = _db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)

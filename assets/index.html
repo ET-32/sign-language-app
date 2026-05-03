@@ -199,7 +199,8 @@ body {
 }
 #remote-vid-relay {
   position: absolute; inset: 0;
-  width: 100%; height: 100%; object-fit: cover; display: none;
+  width: 100%; height: 100%; object-fit: cover;
+  display: none; background: #111;
 }
 #call-no-video-msg {
   display: flex; flex-direction: column; align-items: center; gap: 10px;
@@ -480,11 +481,16 @@ body {
   #signit-canvas { width: 100%; height: auto; }
   .topbar-right { gap: 4px; }
   .icon-btn { padding: 5px 9px; font-size: 12px; }
-  /* call screen already fullscreen — keep topbar visible */
-  #app.active { height: 100vh; overflow: hidden; }
-  #call-self-pip { bottom: 200px; width: 88px; height: 124px; }
-  #remote-sign-overlay { bottom: 205px; font-size: 24px; }
+  /* call screen: fixed fullscreen overlay on mobile — covers topbar */
+  #call-screen.active {
+    position: fixed; inset: 0; z-index: 100;
+    flex: unset; display: flex;
+  }
+  #call-self-pip { bottom: 190px; right: 10px; width: 105px; height: 148px; }
+  #remote-sign-overlay { bottom: 200px; font-size: 22px; padding: 6px 20px; }
+  #call-bottom-controls { padding: 28px 12px 8px; }
   #signit-grid { grid-template-columns: repeat(2, 1fr); }
+  #call-in-screen-actions { display: flex; }
 }
 </style>
 </head>
@@ -603,9 +609,20 @@ body {
         <span id="call-mic-status"></span>
       </div>
       <!-- Partner speech row -->
-      <div class="call-speech-row" style="padding-bottom:6px;">
+      <div class="call-speech-row" style="padding-bottom:4px;">
         <span style="font-size:14px;flex-shrink:0;">👂</span>
         <div id="call-partner-speech-box" class="call-speech-text partner-text placeholder">Partner's speech…</div>
+      </div>
+      <!-- End Call + Sign It buttons inside the screen (critical on mobile) -->
+      <div id="call-in-screen-actions" style="display:flex;gap:10px;justify-content:center;padding:6px 0 4px;">
+        <button onclick="endCall()"
+          style="background:#f85149;color:#fff;border:none;border-radius:50px;padding:10px 28px;font-size:14px;font-weight:700;cursor:pointer;">
+          📵 End Call
+        </button>
+        <button onclick="openSignIt()"
+          style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:50px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;">
+          🤟 Sign It
+        </button>
       </div>
     </div>
   </div>
@@ -847,7 +864,7 @@ function startLoop() {
   loopTimer = setInterval(async () => {
     if (pendingReq || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
     pendingReq = true;
-    const sw = Math.min(video.videoWidth, 640);
+    const sw = Math.min(video.videoWidth, 480);
     const sh = Math.round(sw * video.videoHeight / video.videoWidth);
     capCanvas.width = sw; capCanvas.height = sh;
     capCtx.drawImage(video, 0, 0, sw, sh);
@@ -855,7 +872,7 @@ function startLoop() {
       const resp = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: capCanvas.toDataURL('image/jpeg', 0.82) }),
+        body: JSON.stringify({ image: capCanvas.toDataURL('image/jpeg', 0.75) }),
       });
       handleResult(await resp.json());
     } catch(_) {}
@@ -967,30 +984,41 @@ function startVideoRelay() {
   const vid = document.getElementById('local-call-video');
   let sending = false;
   const ackTimes = [];
+  let quality = 0.60;   // start conservative, adapts up/down based on RTT
+
   videoRelayTimer = setInterval(() => {
     if (!roomId || !socket || !vid.videoWidth || sending) return;
-    const w = Math.min(vid.videoWidth, 640);
+
+    // Keep frames small — 320px wide is plenty for face/sign recognition
+    const w = Math.min(vid.videoWidth, 320);
     const h = Math.round(w * vid.videoHeight / vid.videoWidth);
     if (relayCap.width !== w || relayCap.height !== h) {
       relayCap.width = w; relayCap.height = h;
     }
     relayCtx.drawImage(vid, 0, 0, w, h);
-    const frame = relayCap.toDataURL('image/jpeg', 0.80);
+    const frame = relayCap.toDataURL('image/jpeg', quality);
+
     const t0 = Date.now();
     sending = true;
     socket.emit('video-frame', { roomId, frame }, () => {
       sending = false;
-      ackTimes.push(Date.now() - t0);
-      if (ackTimes.length > 8) ackTimes.shift();
+      const rtt = Date.now() - t0;
+      ackTimes.push(rtt);
+      if (ackTimes.length > 6) ackTimes.shift();
       const avg = ackTimes.reduce((a, b) => a + b, 0) / ackTimes.length;
+
+      // Adapt JPEG quality to keep up with network speed
+      if      (avg < 120) quality = Math.min(0.75, quality + 0.03);
+      else if (avg > 350) quality = Math.max(0.35, quality - 0.07);
+
       const badge = document.getElementById('relay-quality');
       if (badge) {
-        if      (avg < 200) { badge.textContent = '🟢'; badge.title = `Good (${Math.round(avg)}ms)`; }
-        else if (avg < 500) { badge.textContent = '🟡'; badge.title = `Fair (${Math.round(avg)}ms)`; }
+        if      (avg < 180) { badge.textContent = '🟢'; badge.title = `Good (${Math.round(avg)}ms)`; }
+        else if (avg < 400) { badge.textContent = '🟡'; badge.title = `Fair (${Math.round(avg)}ms)`; }
         else                { badge.textContent = '🔴'; badge.title = `Slow (${Math.round(avg)}ms)`; }
       }
     });
-  }, 150);
+  }, 100);   // 100ms = up to 10fps, ack-gate ensures no buffer overflow
 }
 
 function stopVideoRelay() {
@@ -1138,6 +1166,7 @@ async function createRoom() {
 }
 
 async function joinRoom() {
+  if (!currentUser) { closeCallModal(); openLogin(); return; }
   const code = document.getElementById('join-code').value.trim().toUpperCase();
   if (code.length < 2) {
     document.getElementById('call-setup-err').textContent = 'Enter a valid room code.';
@@ -1290,15 +1319,15 @@ function startCallLoop() {
   callLoopTimer = setInterval(async () => {
     if (!callActive || callPending || callVid.readyState < 2) return;
     callPending = true;
-    const sw = Math.min(callVid.videoWidth || 640, 640);
-    const sh = Math.round(sw * (callVid.videoHeight || 480) / (callVid.videoWidth || 640));
+    const sw = Math.min(callVid.videoWidth || 480, 480);
+    const sh = Math.round(sw * (callVid.videoHeight || 480) / (callVid.videoWidth || 480));
     callCapCanvas.width = sw; callCapCanvas.height = sh;
     callCapCtx.drawImage(callVid, 0, 0, sw, sh);
     try {
       const resp = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: callCapCanvas.toDataURL('image/jpeg', 0.82) }),
+        body: JSON.stringify({ image: callCapCanvas.toDataURL('image/jpeg', 0.75) }),
       });
       const data = await resp.json();
       const lbl = data.label, conf = data.confidence || 0;

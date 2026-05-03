@@ -210,6 +210,9 @@ def predict():
 
 @socketio.on('join-room')
 def on_join(data):
+    if not current_user.is_authenticated:
+        emit('call-error', {'msg': 'You must be logged in to join a call.'})
+        return
     rid = (data.get('roomId') or '').strip().upper()
     if not rid:
         emit('call-error', {'msg': 'Invalid room code.'})

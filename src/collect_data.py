@@ -38,22 +38,43 @@ ALL_SIGNS = [
     'PLEASE',
     'HELP',
     'STOP',
+    # 10 new signs
+    'WAIT',
+    'MORE',
+    'FINISH',
+    'WHERE',
+    'WHAT',
+    'NAME',
+    'EAT',
+    'WATER',
+    'BATHROOM',
+    'UNDERSTAND',
 ]
 
 SIGN_GUIDE = {
-    'HELLO':     'Open flat hand near forehead, fingers together (like a salute)',
-    'GOOD':      'Flat hand starts at chin, hold it extended forward',
-    'THANK YOU': 'Flat hand at lips/chin, hold it extended outward',
-    'YES':       'Closed fist (S-hand) — hold still, no need to nod',
-    'NO':        'Index + middle fingers bent down touching thumb',
-    'OK':        'Index fingertip touches thumb tip, other 3 fingers up',
-    'I LOVE YOU':'Thumb + index finger + pinky extended (ILY handshape)',
-    'CALL ME':   'Pinky + thumb extended, other fingers curled (Y-shape)',
-    'PEACE':     'Index + middle fingers raised in V shape',
-    'SORRY':     'Closed fist held flat against chest',
-    'PLEASE':    'Flat open palm pressed against chest',
-    'HELP':      'TWO HANDS — thumbs-up right hand resting on flat left palm',
-    'STOP':      'TWO HANDS — right open hand pressed perpendicular into left palm',
+    'HELLO':      'Open flat hand near forehead, fingers together (like a salute)',
+    'GOOD':       'Flat hand starts at chin, hold it extended forward',
+    'THANK YOU':  'Flat hand at lips/chin, hold it extended outward',
+    'YES':        'Closed fist (S-hand) — hold still, no need to nod',
+    'NO':         'Index + middle fingers bent down touching thumb',
+    'OK':         'Index fingertip touches thumb tip, other 3 fingers up',
+    'I LOVE YOU': 'Thumb + index finger + pinky extended (ILY handshape)',
+    'CALL ME':    'Pinky + thumb extended, other fingers curled (Y-shape)',
+    'PEACE':      'Index + middle fingers raised in V shape',
+    'SORRY':      'Closed fist held flat against chest',
+    'PLEASE':     'Flat open palm pressed against chest',
+    'HELP':       'TWO HANDS — thumbs-up right hand resting on flat left palm',
+    'STOP':       'TWO HANDS — right open hand pressed perpendicular into left palm',
+    'WAIT':       'TWO HANDS — both open hands up, palms out, fingers spread, wiggle fingers',
+    'MORE':       'Both hands: fingertips bunched together, tap fingertips together twice',
+    'FINISH':     'TWO HANDS — both hands open facing you, twist/rotate outward at wrists',
+    'WHERE':      'Index finger points up, waggle it side to side',
+    'WHAT':       'Index finger sweeps across fingers of open other hand',
+    'NAME':       'TWO HANDS — middle+index fingers of each hand crossed like an X, tap twice',
+    'EAT':        'Fingertips of dominant hand bunched together, tap to lips/mouth twice',
+    'WATER':      'W-handshape (index+middle+ring up), tap chin twice',
+    'BATHROOM':   'T-handshape (thumb between index+middle), shake wrist side to side',
+    'UNDERSTAND': 'Closed fist at forehead, flick index finger up (lightbulb moment)',
 }
 
 EXPECTED_FEATURES = 126   # 2 hands × 21 landmarks × 3
@@ -94,7 +115,7 @@ def collect_sign(cap, hands, writer, sign, existing_count):
     capturing    = False
     last_capture = 0.0
     guide        = SIGN_GUIDE.get(sign, '')
-    two_handed   = sign in ('HELP', 'STOP')
+    two_handed   = sign in ('HELP', 'STOP', 'WAIT', 'FINISH', 'NAME')
     status_msg   = 'Press SPACE to start auto-capture'
 
     while count < SAMPLES_PER_SIGN:
@@ -249,7 +270,7 @@ def main():
 
             print(f'\nCollecting: {sign}')
             print(f'Pose: {SIGN_GUIDE.get(sign, "")}')
-            if sign in ('HELP', 'STOP'):
+            if sign in ('HELP', 'STOP', 'WAIT', 'FINISH', 'NAME'):
                 print('NOTE: Show BOTH hands in the frame.')
             print('Press SPACE to start auto-capture. B to go back.')
 

@@ -180,8 +180,34 @@ The model must be committed to git (`models/sign_model.pkl`) so Railway can use 
 
 ---
 
+## Auth & Subscription
+
+- Database: SQLite (`signai.db` in project root). Uses `DATABASE_URL` env var if set (e.g. PostgreSQL on Railway).
+- Secret key: `SECRET_KEY` env var (falls back to a dev default — set it in production).
+- Free plan: 10 video calls/month per user. Paid (Pro): unlimited.
+- `is_subscribed` field on User controls this. To manually upgrade a user: set `user.is_subscribed = True` in a Flask shell.
+- Call count resets automatically at the start of each new calendar month.
+- **Payment integration** not yet wired — the "Upgrade" button shows a placeholder. Connect Stripe (or similar) to the `/api/upgrade` endpoint when ready.
+
+## Signs the Model Recognises (23 total — 10 new need data collection + retraining)
+
+**Original 13 (model trained):** `HELLO`, `GOOD`, `THANK YOU`, `YES`, `NO`, `OK`, `I LOVE YOU`, `CALL ME`, `PEACE`, `SORRY`, `PLEASE`, `HELP`, `STOP`
+
+**New 10 (Sign It panel ready — model needs retraining):** `WAIT`, `MORE`, `FINISH`, `WHERE`, `WHAT`, `NAME`, `EAT`, `WATER`, `BATHROOM`, `UNDERSTAND`
+
+To make the new 10 detectable: run `py -m src.collect_data`, collect each sign, then `py -m src.train_model`.
+
+New GIF files needed in `assets/signs/` (download from lifeprint.com):
+`wait.gif`, `more.gif`, `finish.gif`, `where.gif`, `what.gif`, `name.gif`, `eat.gif`, `water.gif`, `bathroom.gif`, `understand.gif`
+
 ## Known Pending Items
 
-1. **`/signs/<word>` route** — The Flask `/signs/<letter>` route blocks names longer than 1 char. `good.gif` and `ok.gif` are in `assets/signs/` but not yet reachable via HTTP. The `SIGN_GIFS` map still uses Giphy URLs for GOOD and OK. Fix: extend the route to allow alpha-only names up to 20 chars, then point `SIGN_GIFS['GOOD']` to `/signs/good` and `SIGN_GIFS['OK']` to `/signs/ok`.
+1. **New sign GIFs** — Download the 10 GIFs from [lifeprint.com](https://www.lifeprint.com/asl101/pages-signs/) and place them in `assets/signs/` with matching lowercase filenames (e.g. `wait.gif`). The Flask route and frontend are already wired up.
 
-2. **Sign detection accuracy** — Model trained on one person. Accuracy varies for others. Sensitivity slider (40–90%) helps. Re-training with diverse data would help more.
+2. **New sign detection** — Collect training data for the 10 new signs with `py -m src.collect_data`, then retrain with `py -m src.train_model`. Commit the new `models/sign_model.pkl` for Railway.
+
+3. **Upgrade payment** — Wire Stripe (or similar) to complete Pro subscriptions. The UI and `is_subscribed` field are ready.
+
+4. **Railway SQLite persistence** — SQLite data is lost on redeploy without a volume. For production: set `DATABASE_URL` to a PostgreSQL instance and add `psycopg2-binary` to `requirements.txt`.
+
+5. **Sign detection accuracy** — Model trained on one person. Sensitivity slider (40–90%) helps. Re-training with diverse data would help more.

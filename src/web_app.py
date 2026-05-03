@@ -1,5 +1,5 @@
 """
-Flask web server — serves the web UI, handles frame prediction, and WebRTC signaling.
+Flask web server — serves the web UI, handles frame prediction, and Socket.IO relay.
 """
 
 import base64
@@ -11,21 +11,41 @@ import threading
 import cv2
 import numpy as np
 from flask import Flask, jsonify, request, send_from_directory
+from flask_login import LoginManager, login_user, logout_user, current_user
 from flask_socketio import SocketIO, emit, join_room
 
-_ASSETS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
+from src.models import db, User
 
-app      = Flask(__name__)
+_ASSETS  = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets'))
+_DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'signai.db'))
+
+app = Flask(__name__)
+app.config['SECRET_KEY']                  = os.environ.get('SECRET_KEY', 'signai-dev-key-change-in-prod')
+app.config['SQLALCHEMY_DATABASE_URI']     = os.environ.get('DATABASE_URL', f'sqlite:///{_DB_PATH}')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+login_manager = LoginManager(app)
+
 socketio = SocketIO(app, cors_allowed_origins='*')
-_pred    = None
-_lock    = threading.Lock()
 
-# room_id -> set of session IDs
-_rooms      = {}
+_pred      = None
+_lock      = threading.Lock()
+_rooms     = {}
 _rooms_lock = threading.Lock()
 
 import logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+
+with app.app_context():
+    db.create_all()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
 
 
 def _get_predictor():
@@ -37,13 +57,79 @@ def _get_predictor():
 
 
 def _make_room_id():
-    """Generate a unique 6-char room code and reserve it."""
     with _rooms_lock:
         while True:
             rid = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
             if rid not in _rooms:
                 _rooms[rid] = set()
                 return rid
+
+
+def _user_dict(user):
+    remaining = user.calls_remaining()
+    return {
+        'username':        user.username,
+        'is_subscribed':   user.is_subscribed,
+        'calls_remaining': remaining,   # None = unlimited (Pro)
+        'can_call':        user.can_call(),
+    }
+
+
+# ── Auth API ───────────────────────────────────────────────────────────────────
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data     = request.get_json() or {}
+    username = (data.get('username') or '').strip()
+    email    = (data.get('email') or '').strip().lower()
+    password = data.get('password') or ''
+
+    if not username or not email or not password:
+        return jsonify({'error': 'All fields are required.'}), 400
+    if len(username) < 3:
+        return jsonify({'error': 'Username must be at least 3 characters.'}), 400
+    if len(password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters.'}), 400
+    if '@' not in email:
+        return jsonify({'error': 'Enter a valid email address.'}), 400
+    if User.query.filter_by(username=username).first():
+        return jsonify({'error': 'Username already taken.'}), 409
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already registered.'}), 409
+
+    user = User(username=username, email=email)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    login_user(user, remember=True)
+    return jsonify({'ok': True, 'user': _user_dict(user)})
+
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data     = request.get_json() or {}
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
+
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.check_password(password):
+        return jsonify({'error': 'Wrong username or password.'}), 401
+
+    login_user(user, remember=True)
+    return jsonify({'ok': True, 'user': _user_dict(user)})
+
+
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    logout_user()
+    return jsonify({'ok': True})
+
+
+@app.route('/api/me')
+def api_me():
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'not_logged_in'}), 401
+    return jsonify(_user_dict(current_user))
 
 
 # ── HTTP Routes ────────────────────────────────────────────────────────────────
@@ -53,24 +139,31 @@ def index():
     return send_from_directory(_ASSETS, 'index.html')
 
 
-
 @app.route('/create-room')
 def create_room():
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'login_required'}), 401
+    if not current_user.can_call():
+        return jsonify({
+            'error': 'limit_reached',
+            'msg':   'Monthly call limit reached. Upgrade to Pro for unlimited calls.',
+        }), 403
+    current_user.record_call()
+    db.session.commit()
     rid = _make_room_id()
     return jsonify({'roomId': rid})
 
 
-@app.route('/signs/<letter>')
-def serve_sign(letter):
-    """Serve locally stored ASL fingerspelling GIFs."""
-    clean = ''.join(c for c in letter.lower() if c.isalpha())
-    if len(clean) != 1:
+@app.route('/signs/<path:name>')
+def serve_sign(name):
+    """Serve locally stored ASL GIFs — single letters and word names (good, ok, wait …)."""
+    clean = ''.join(c for c in name.lower() if c.isalpha())
+    if not clean or len(clean) > 20:
         return '', 404
     signs_dir = os.path.join(_ASSETS, 'signs')
     fname = clean + '.gif'
     if os.path.exists(os.path.join(signs_dir, fname)):
-        return send_from_directory(signs_dir, fname, mimetype='image/gif',
-                                   max_age=86400)
+        return send_from_directory(signs_dir, fname, mimetype='image/gif', max_age=86400)
     return '', 404
 
 
@@ -113,7 +206,7 @@ def predict():
     })
 
 
-# ── Socket.IO — WebRTC Signaling ───────────────────────────────────────────────
+# ── Socket.IO ──────────────────────────────────────────────────────────────────
 
 @socketio.on('join-room')
 def on_join(data):
@@ -137,7 +230,6 @@ def on_join(data):
     emit('room-joined', {'roomId': rid, 'count': count})
 
     if initiator_sid:
-        # Tell the first person (who is waiting) to create the WebRTC offer
         emit('peer-ready', {}, to=initiator_sid)
 
 
@@ -192,7 +284,7 @@ def on_disconnect():
         emit('peer-left', {}, to=sid)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ── Entry point ────────────────────────────────────────────────────────────────
 
 def run(host='0.0.0.0', port=5055):
     socketio.run(app, host=host, port=port, debug=False,

@@ -4,4 +4,6 @@ numpy
 scikit-learn
 flask
 flask-socketio
+flask-login
+flask-sqlalchemy
 simple-websocket

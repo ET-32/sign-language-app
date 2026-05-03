@@ -184,73 +184,171 @@ body {
 .btn-accent { padding: 8px 18px; border-radius: 8px; border: none; background: var(--accent); color: #000; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.18s; }
 .btn-accent:hover { opacity: 0.85; }
 
-/* ── Video Call Screen ───────────────────────────────────────────── */
+/* ── Video Call Screen — WhatsApp style ─────────────────────────── */
 #call-screen {
-  display: none; flex: 1; flex-direction: column;
-  gap: 12px; padding: 14px; overflow: hidden;
+  display: none; position: relative; flex: 1;
+  background: #0a0a14; overflow: hidden;
 }
 #call-screen.active { display: flex; }
-#call-videos {
-  flex: 1; display: grid; grid-template-columns: 1fr 1fr;
-  gap: 12px; min-height: 0;
+
+/* Partner video — full background */
+#call-remote-bg {
+  position: absolute; inset: 0;
+  background: #111827;
+  display: flex; align-items: center; justify-content: center;
 }
-.call-vid-wrap {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; position: relative; overflow: hidden;
-  display: flex; flex-direction: column;
+#remote-vid-relay {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: none;
 }
-.call-vid-wrap video, .call-vid-wrap img {
-  flex: 1; width: 100%; object-fit: cover; background: #090d13; display: block; min-height: 0;
+#call-no-video-msg {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  color: #555; font-size: 14px; z-index: 1;
 }
-.call-person-label {
-  position: absolute; top: 10px; left: 12px;
-  background: #00000088; color: #fff; backdrop-filter: blur(4px);
-  padding: 3px 10px; border-radius: 20px;
-  font-size: 12px; font-weight: 600; letter-spacing: 1px; z-index: 2;
+#call-no-video-msg .waiting-spinner {
+  border-color: #333; border-top-color: #666; width: 28px; height: 28px; border-width: 2px;
 }
-.call-sign-overlay {
-  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
-  background: #000000bb; color: var(--accent);
-  padding: 6px 20px; border-radius: 20px;
-  font-size: 24px; font-weight: 800; letter-spacing: 2px;
-  white-space: nowrap; min-width: 60px; text-align: center;
-  z-index: 2; pointer-events: none;
+#call-partner-label {
+  position: absolute; top: 10px; left: 12px; z-index: 5;
+  background: rgba(0,0,0,0.55); color: #fff; backdrop-filter: blur(6px);
+  padding: 3px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: 1px;
 }
-#call-bottom {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 12px 16px;
-  display: flex; flex-direction: column; gap: 4px;
-  flex-shrink: 0; max-height: 120px;
+#remote-sign-overlay {
+  position: absolute; bottom: 210px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.72); color: #3fb950;
+  padding: 8px 28px; border-radius: 28px;
+  font-size: 30px; font-weight: 800; letter-spacing: 2px;
+  white-space: nowrap; text-align: center;
+  z-index: 5; pointer-events: none;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+
+/* Self PiP — draggable corner */
+#call-self-pip {
+  position: absolute; bottom: 210px; right: 14px;
+  width: 100px; height: 140px;
+  border-radius: 14px; overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.3);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.8);
+  z-index: 10; cursor: grab; touch-action: none;
+  transition: box-shadow 0.15s;
+}
+#call-self-pip:active { cursor: grabbing; }
+#local-call-video {
+  width: 100%; height: 100%; object-fit: cover;
+  transform: scaleX(-1); display: block;
+}
+#local-sign-overlay {
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); color: var(--accent);
+  padding: 1px 7px; border-radius: 8px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+  white-space: nowrap; z-index: 2; pointer-events: none;
+}
+
+/* Bottom controls overlay */
+#call-bottom-controls {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+  background: linear-gradient(transparent 0%, rgba(0,0,0,0.9) 35%);
+  padding: 36px 14px 10px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+#call-conn-status {
+  font-size: 10px; color: rgba(255,255,255,0.38);
+  letter-spacing: 1px; text-align: center; flex-shrink: 0;
 }
 #call-transcript-box {
-  flex: 1; overflow-y: auto; font-size: 14px;
-  line-height: 1.6; word-break: break-word; min-height: 0;
+  font-size: 12px; line-height: 1.5; word-break: break-word;
+  color: rgba(255,255,255,0.65); max-height: 36px; overflow: hidden;
+  text-align: center; flex-shrink: 0;
 }
-#call-conn-status { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0; }
-
-/* Call speech bar */
-#call-speech-bar {
-  display: flex; gap: 12px; align-items: stretch;
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 12px 16px; flex-shrink: 0;
-}
-.call-speech-col { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-.call-speech-col-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 1px;
-  text-transform: uppercase; color: var(--text-muted);
+.call-speech-row {
+  display: flex; gap: 8px; align-items: center; flex-shrink: 0;
 }
 .call-speech-text {
-  flex: 1; font-size: 17px; font-weight: 600; line-height: 1.5;
-  color: var(--text); background: var(--bg);
-  border-radius: 8px; padding: 10px 14px;
-  border: 1px solid var(--border2);
-  min-height: 52px; word-break: break-word; overflow: hidden;
+  flex: 1; font-size: 14px; font-weight: 500; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.call-speech-text.placeholder { color: var(--text-dim); font-size: 13px; font-weight: 400; }
-.call-speech-mic-row { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
-.call-speech-divider {
-  width: 1px; background: var(--border); flex-shrink: 0; border-radius: 2px;
+.call-speech-text.placeholder { color: rgba(255,255,255,0.28); font-weight: 400; }
+.call-speech-text.partner-text { color: #7affb2; }
+#call-mic-status { font-size: 10px; color: rgba(255,255,255,0.38); flex-shrink: 0; }
+
+/* ── Auth modals ─────────────────────────────────────────────────── */
+.auth-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 300;
+  align-items: center; justify-content: center;
 }
+.auth-overlay.open { display: flex; }
+.auth-modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 18px; padding: 32px; width: 380px; max-width: 95vw;
+  position: relative; box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+  color: var(--text);
+}
+.auth-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.auth-sub   { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+.auth-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.auth-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+.auth-input {
+  padding: 10px 14px; border-radius: 9px;
+  border: 1px solid var(--border2); background: var(--bg);
+  color: var(--text); font-size: 15px; outline: none; transition: border 0.2s;
+}
+.auth-input:focus { border-color: var(--accent); }
+.auth-err   { color: var(--red); font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+.auth-switch { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 14px; }
+.auth-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+/* ── Account / subscription badge (landing) ─────────────────────── */
+#auth-bar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; justify-content: center; margin-bottom: 4px;
+}
+#auth-logged-in  { display: none; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+#auth-logged-out { display: flex; align-items: center; gap: 10px; }
+.auth-username-chip {
+  background: var(--btn); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 13px; font-weight: 700; color: var(--text);
+}
+.calls-chip {
+  background: var(--accent-dim); border: 1px solid var(--accent);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+}
+.calls-chip.pro { background: #d2992220; border-color: #d29922; color: #d29922; }
+.upgrade-chip {
+  padding: 5px 14px; border-radius: 20px;
+  border: 1px solid #d29922; background: #d2992218;
+  color: #d29922; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: background 0.18s;
+}
+.upgrade-chip:hover { background: #d2992230; }
+
+/* ── Upgrade modal ───────────────────────────────────────────────── */
+#upgrade-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 300;
+  align-items: center; justify-content: center;
+}
+#upgrade-overlay.open { display: flex; }
+#upgrade-modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 18px; padding: 32px; width: 400px; max-width: 95vw;
+  position: relative; box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+  text-align: center;
+}
+.plan-card {
+  border: 1px solid var(--border2); border-radius: 12px;
+  padding: 16px; margin: 10px 0; text-align: left;
+}
+.plan-card.pro { border-color: #d29922; background: #d2992210; }
+.plan-name { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.plan-price { font-size: 26px; font-weight: 800; color: var(--accent); margin: 4px 0; }
+.plan-price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+.plan-features { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-top: 6px; }
 
 /* ── Call Setup Modal ────────────────────────────────────────────── */
 #call-modal-overlay {
@@ -382,8 +480,11 @@ body {
   #signit-canvas { width: 100%; height: auto; }
   .topbar-right { gap: 4px; }
   .icon-btn { padding: 5px 9px; font-size: 12px; }
-  #call-videos { grid-template-columns: 1fr; }
-  #call-screen { overflow-y: auto; }
+  /* call screen already fullscreen — keep topbar visible */
+  #app.active { height: 100vh; overflow: hidden; }
+  #call-self-pip { bottom: 200px; width: 88px; height: 124px; }
+  #remote-sign-overlay { bottom: 205px; font-size: 24px; }
+  #signit-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 </head>
@@ -393,6 +494,21 @@ body {
 <div id="landing">
   <div class="hero-title">Sign<span>AI</span></div>
   <div class="hero-sub">Sign language translation — live and together.</div>
+
+  <!-- Auth bar -->
+  <div id="auth-bar">
+    <div id="auth-logged-in">
+      <span class="auth-username-chip" id="auth-username-badge">👤</span>
+      <span class="calls-chip" id="auth-calls-badge"></span>
+      <button class="upgrade-chip" id="upgrade-btn" onclick="openUpgrade()" style="display:none;">⭐ Upgrade to Pro</button>
+      <button class="icon-btn" onclick="logout()" style="font-size:12px;">Sign Out</button>
+    </div>
+    <div id="auth-logged-out">
+      <button class="icon-btn" onclick="openLogin()" style="font-size:14px;padding:8px 20px;">Sign In</button>
+      <button class="call-land-btn" onclick="openRegister()" style="padding:10px 26px;font-size:15px;">Create Account</button>
+    </div>
+  </div>
+
   <div class="hero-features">
     <span>Real-time signing</span>
     <span>Live speech</span>
@@ -400,7 +516,7 @@ body {
   </div>
   <button class="activate-btn" onclick="activate()">&#9889; Solo Mode</button>
   <button class="call-land-btn" onclick="openCallModal()">📹 Video Call</button>
-  <div class="hint">Camera access will be requested</div>
+  <div class="hint">Video call requires a free account · 10 calls/month free</div>
 </div>
 
 <!-- ── App ───────────────────────────────────────────────────────── -->
@@ -455,43 +571,42 @@ body {
     </div>
   </div>
 
-  <!-- Call screen (replaces panels during a call) -->
+  <!-- Call screen — WhatsApp style (replaces panels during a call) -->
   <div id="call-screen">
-    <div id="call-videos">
-      <div class="call-vid-wrap">
-        <div class="call-person-label">You</div>
-        <video id="local-call-video" autoplay playsinline muted style="transform:scaleX(-1)"></video>
-        <div class="call-sign-overlay" id="local-sign-overlay"></div>
+    <!-- Partner video: full background -->
+    <div id="call-remote-bg">
+      <div id="call-no-video-msg">
+        <div class="waiting-spinner"></div>
+        <div>Waiting for partner…</div>
       </div>
-      <div class="call-vid-wrap">
-        <div class="call-person-label">Partner <span id="relay-quality" style="font-size:11px;margin-left:4px;" title="Connection quality"></span></div>
-        <img id="remote-vid-relay" style="display:none;" />
-        <div class="call-sign-overlay" id="remote-sign-overlay" style="color:var(--green)"></div>
-      </div>
+      <img id="remote-vid-relay" />
     </div>
-    <!-- Speech bar: both people can speak, both can read -->
-    <div id="call-speech-bar">
-      <!-- Your speech -->
-      <div class="call-speech-col">
-        <div class="call-speech-col-label">🎤 You (speaking)</div>
-        <div id="call-my-speech-box" class="call-speech-text placeholder">Your speech will appear here…</div>
-        <div class="call-speech-mic-row">
-          <button class="btn-mic" id="call-mic-btn" onclick="toggleCallMic()">🎤 Speak</button>
-          <span id="call-mic-status" style="font-size:11px;color:var(--text-muted);">Mic off</span>
-        </div>
-      </div>
-      <div class="call-speech-divider"></div>
-      <!-- Partner's speech -->
-      <div class="call-speech-col">
-        <div class="call-speech-col-label">👂 Partner (speaking)</div>
-        <div id="call-partner-speech-box" class="call-speech-text placeholder">Partner's speech will appear here…</div>
-      </div>
+    <div id="call-partner-label">
+      Partner <span id="relay-quality" style="font-size:11px;margin-left:4px;" title="Connection quality"></span>
+    </div>
+    <div id="remote-sign-overlay"></div>
+
+    <!-- Self PiP -->
+    <div id="call-self-pip">
+      <video id="local-call-video" autoplay playsinline muted></video>
+      <div id="local-sign-overlay"></div>
     </div>
 
-    <div id="call-bottom">
-      <div class="panel-label" style="padding:0 0 4px;border:none;">Live Transcript</div>
-      <div id="call-transcript-box"></div>
+    <!-- Bottom controls overlay -->
+    <div id="call-bottom-controls">
       <div id="call-conn-status">Connecting…</div>
+      <div id="call-transcript-box"></div>
+      <!-- Your speech row -->
+      <div class="call-speech-row">
+        <button class="btn-mic" id="call-mic-btn" onclick="toggleCallMic()">🎤 Speak</button>
+        <div id="call-my-speech-box" class="call-speech-text placeholder">Your speech…</div>
+        <span id="call-mic-status"></span>
+      </div>
+      <!-- Partner speech row -->
+      <div class="call-speech-row" style="padding-bottom:6px;">
+        <span style="font-size:14px;flex-shrink:0;">👂</span>
+        <div id="call-partner-speech-box" class="call-speech-text partner-text placeholder">Partner's speech…</div>
+      </div>
     </div>
   </div>
 </div>
@@ -542,6 +657,78 @@ body {
   <img id="incoming-sign-gif" alt="Partner's sign" />
   <div class="isp-label" id="incoming-sign-label"></div>
   <div class="isp-sub">Partner is signing to you</div>
+</div>
+
+<!-- ── Login Modal ───────────────────────────────────────────────── -->
+<div class="auth-overlay" id="login-overlay" onclick="closeBgLogin(event)">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeLogin()">×</button>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to start video calling</div>
+    <div class="auth-field">
+      <label class="auth-label">Username</label>
+      <input class="auth-input" id="login-username" type="text" placeholder="your_username"
+             onkeydown="if(event.key==='Enter')login()" autocomplete="username" />
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <input class="auth-input" id="login-password" type="password" placeholder="••••••••"
+             onkeydown="if(event.key==='Enter')login()" autocomplete="current-password" />
+    </div>
+    <div class="auth-err" id="login-err"></div>
+    <button class="btn-accent" style="width:100%;padding:12px;font-size:15px;border-radius:10px;" onclick="login()">Sign In</button>
+    <div class="auth-switch">No account? <a onclick="closeLogin();openRegister()">Create one free</a></div>
+  </div>
+</div>
+
+<!-- ── Register Modal ─────────────────────────────────────────────── -->
+<div class="auth-overlay" id="register-overlay" onclick="closeBgRegister(event)">
+  <div class="auth-modal">
+    <button class="modal-close" onclick="closeRegister()">×</button>
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Free — 10 video calls per month</div>
+    <div class="auth-field">
+      <label class="auth-label">Username</label>
+      <input class="auth-input" id="reg-username" type="text" placeholder="your_username"
+             autocomplete="username" />
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Email</label>
+      <input class="auth-input" id="reg-email" type="email" placeholder="you@email.com"
+             autocomplete="email" />
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <input class="auth-input" id="reg-password" type="password" placeholder="6+ characters"
+             onkeydown="if(event.key==='Enter')register()" autocomplete="new-password" />
+    </div>
+    <div class="auth-err" id="reg-err"></div>
+    <button class="btn-accent" style="width:100%;padding:12px;font-size:15px;border-radius:10px;" onclick="register()">Create Account</button>
+    <div class="auth-switch">Already have one? <a onclick="closeRegister();openLogin()">Sign in</a></div>
+  </div>
+</div>
+
+<!-- ── Upgrade Modal ──────────────────────────────────────────────── -->
+<div id="upgrade-overlay" onclick="closeBgUpgrade(event)">
+  <div id="upgrade-modal">
+    <button class="modal-close" onclick="closeUpgrade()">×</button>
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px;">Choose your plan</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Upgrade anytime · Cancel anytime</div>
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0 <span>/ month</span></div>
+      <div class="plan-features">✓ Solo sign translation<br>✓ 10 video calls per month<br>✓ Speech-to-text<br>✓ Sign It panel</div>
+    </div>
+    <div class="plan-card pro">
+      <div class="plan-name" style="color:#d29922;">⭐ Pro</div>
+      <div class="plan-price" style="color:#d29922;">$4.99 <span>/ month</span></div>
+      <div class="plan-features">✓ Everything in Free<br>✓ Unlimited video calls<br>✓ Priority support</div>
+    </div>
+    <button class="btn-accent" style="width:100%;padding:12px;font-size:15px;border-radius:10px;margin-top:10px;background:#d29922;"
+            onclick="alert('Payment integration coming soon! Contact support to upgrade.')">
+      ⭐ Upgrade to Pro
+    </button>
+  </div>
 </div>
 
 <!-- ── Sign It Modal ─────────────────────────────────────────────── -->
@@ -810,6 +997,36 @@ function stopVideoRelay() {
   if (videoRelayTimer) { clearInterval(videoRelayTimer); videoRelayTimer = null; }
 }
 
+// ── PiP drag (touch + mouse) ──────────────────────────────────────────────
+(function initPipDrag() {
+  const pip = document.getElementById('call-self-pip');
+  let dragging = false, startX, startY, origRight, origBottom;
+  function startDrag(cx, cy) {
+    const r = pip.getBoundingClientRect();
+    const pr = pip.parentElement.getBoundingClientRect();
+    origRight  = pr.right  - r.right;
+    origBottom = pr.bottom - r.bottom;
+    startX = cx; startY = cy;
+    dragging = true;
+    pip.style.transition = 'none';
+  }
+  function moveDrag(cx, cy) {
+    if (!dragging) return;
+    const dx = cx - startX, dy = cy - startY;
+    const newRight  = Math.max(0, origRight  - dx);
+    const newBottom = Math.max(0, origBottom + dy);
+    pip.style.right  = newRight  + 'px';
+    pip.style.bottom = newBottom + 'px';
+  }
+  function endDrag() { dragging = false; pip.style.transition = ''; }
+  pip.addEventListener('mousedown',  e => { startDrag(e.clientX, e.clientY); e.preventDefault(); });
+  pip.addEventListener('touchstart', e => { const t = e.touches[0]; startDrag(t.clientX, t.clientY); }, { passive: true });
+  document.addEventListener('mousemove',  e => moveDrag(e.clientX, e.clientY));
+  document.addEventListener('touchmove',  e => { const t = e.touches[0]; moveDrag(t.clientX, t.clientY); }, { passive: true });
+  document.addEventListener('mouseup',  endDrag);
+  document.addEventListener('touchend', endDrag);
+}());
+
 function initSocket() {
   if (socket) return;
   socket = io();
@@ -832,6 +1049,8 @@ function initSocket() {
     const img = document.getElementById('remote-vid-relay');
     img.style.display = 'block';
     img.src = d.frame;
+    const noVid = document.getElementById('call-no-video-msg');
+    if (noVid) noVid.style.display = 'none';
     if (!callActive) onCallConnected();
   });
 
@@ -893,12 +1112,26 @@ async function startLocalStream() {
 }
 
 async function createRoom() {
+  if (!currentUser) { closeCallModal(); openLogin(); return; }
   document.getElementById('call-setup-err').textContent = '';
   try {
     await startLocalStream();
     initSocket();
-    const data = await fetch('/create-room').then(r => r.json());
+    const r = await fetch('/create-room');
+    if (!r.ok) {
+      const d = await r.json();
+      if (d.error === 'login_required') { closeCallModal(); openLogin(); return; }
+      if (d.error === 'limit_reached') {
+        document.getElementById('call-setup-err').textContent = d.msg;
+        return;
+      }
+      document.getElementById('call-setup-err').textContent = 'Server error. Try again.';
+      return;
+    }
+    const data = await r.json();
     socket.emit('join-room', { roomId: data.roomId });
+    // Refresh call count shown in auth bar
+    fetchCurrentUser();
   } catch(err) {
     document.getElementById('call-setup-err').textContent = 'Camera/mic error: ' + err.message;
   }
@@ -1039,11 +1272,13 @@ function endCall() {
   document.getElementById('call-transcript-box').innerHTML   = '';
   const ri = document.getElementById('remote-vid-relay');
   ri.src = ''; ri.style.display = 'none';
+  const noVid = document.getElementById('call-no-video-msg');
+  if (noVid) noVid.style.display = '';
   document.getElementById('relay-quality').textContent = '';
   const myBox = document.getElementById('call-my-speech-box');
-  myBox.textContent = 'Your speech will appear here…'; myBox.classList.add('placeholder');
+  myBox.textContent = 'Your speech…'; myBox.classList.add('placeholder');
   const spBox = document.getElementById('call-partner-speech-box');
-  spBox.textContent = 'Partner\'s speech will appear here…'; spBox.classList.add('placeholder');
+  spBox.textContent = 'Partner\'s speech…'; spBox.classList.add('placeholder');
 
   // Return to landing page
   document.getElementById('app').classList.remove('active');
@@ -1110,44 +1345,161 @@ function appendCallTranscript(who, label, color) {
 })();
 
 // ─────────────────────────────────────────────────────────────────────────
+//  AUTH — login / register / logout
+// ─────────────────────────────────────────────────────────────────────────
+let currentUser = null;
+
+async function fetchCurrentUser() {
+  try {
+    const r = await fetch('/api/me');
+    currentUser = r.ok ? await r.json() : null;
+  } catch { currentUser = null; }
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  const loggedIn  = document.getElementById('auth-logged-in');
+  const loggedOut = document.getElementById('auth-logged-out');
+  if (!loggedIn) return;
+  if (currentUser) {
+    loggedIn.style.display  = 'flex';
+    loggedOut.style.display = 'none';
+    document.getElementById('auth-username-badge').textContent = '👤 ' + currentUser.username;
+    const upgradeBtn  = document.getElementById('upgrade-btn');
+    const callsBadge  = document.getElementById('auth-calls-badge');
+    if (currentUser.is_subscribed) {
+      callsBadge.textContent = '⭐ Pro — Unlimited';
+      callsBadge.className   = 'calls-chip pro';
+      upgradeBtn.style.display = 'none';
+    } else {
+      const rem = currentUser.calls_remaining;
+      callsBadge.textContent = rem + ' call' + (rem === 1 ? '' : 's') + ' left this month';
+      callsBadge.className   = 'calls-chip';
+      upgradeBtn.style.display = '';
+    }
+  } else {
+    loggedIn.style.display  = 'none';
+    loggedOut.style.display = 'flex';
+  }
+}
+
+function openLogin()    { document.getElementById('login-overlay').classList.add('open'); }
+function closeLogin()   { document.getElementById('login-overlay').classList.remove('open'); }
+function closeBgLogin(e){ if (e.target === document.getElementById('login-overlay')) closeLogin(); }
+
+function openRegister()    { document.getElementById('register-overlay').classList.add('open'); }
+function closeRegister()   { document.getElementById('register-overlay').classList.remove('open'); }
+function closeBgRegister(e){ if (e.target === document.getElementById('register-overlay')) closeRegister(); }
+
+function openUpgrade()    { document.getElementById('upgrade-overlay').classList.add('open'); }
+function closeUpgrade()   { document.getElementById('upgrade-overlay').classList.remove('open'); }
+function closeBgUpgrade(e){ if (e.target === document.getElementById('upgrade-overlay')) closeUpgrade(); }
+
+async function login() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const err      = document.getElementById('login-err');
+  err.textContent = '';
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const d = await r.json();
+    if (!r.ok) { err.textContent = d.error; return; }
+    currentUser = d.user; updateAuthUI(); closeLogin();
+    document.getElementById('login-password').value = '';
+  } catch { err.textContent = 'Network error. Please try again.'; }
+}
+
+async function register() {
+  const username = document.getElementById('reg-username').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const err      = document.getElementById('reg-err');
+  err.textContent = '';
+  try {
+    const r = await fetch('/api/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password }),
+    });
+    const d = await r.json();
+    if (!r.ok) { err.textContent = d.error; return; }
+    currentUser = d.user; updateAuthUI(); closeRegister();
+    document.getElementById('reg-password').value = '';
+  } catch { err.textContent = 'Network error. Please try again.'; }
+}
+
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  currentUser = null; updateAuthUI();
+}
+
+// Check session on page load
+fetchCurrentUser();
+
+// ─────────────────────────────────────────────────────────────────────────
 //  SIGN IT — real ASL GIFs so hearing person can learn & copy signs
 // ─────────────────────────────────────────────────────────────────────────
 
 const SIGN_GIFS = {
-  'HELLO':     'https://media.giphy.com/media/3o7TKNKOfKlIhbD3gY/giphy.gif',
-  'GOOD':      'https://media.giphy.com/media/3o7TKDw5NA17fKJVWU/giphy.gif',
-  'THANK YOU': 'https://media.giphy.com/media/vvv88lqGohwjK/giphy.gif',
-  'YES':       'https://media.giphy.com/media/l4Jz0THKhQLo61NBK/giphy.gif',
-  'NO':        'https://media.giphy.com/media/l4Jz4faxuS1FiSEV2/giphy.gif',
-  'OK':        'https://media.giphy.com/media/26FL6SiwlHGO6zyms/giphy.gif',
-  'I LOVE YOU':'https://media.giphy.com/media/UNyHCOe7UFeJa/giphy.gif',
-  'CALL ME':   'https://media.giphy.com/media/3o7TKVpHgoqmVEX6so/giphy.gif',
-  'PEACE':     'https://media.giphy.com/media/G2BLEuDTOAEVrcV1pe/giphy.gif',
-  'SORRY':     'https://media.giphy.com/media/3o7TKq0oNLk8ljH7vG/giphy.gif',
-  'PLEASE':    'https://media.giphy.com/media/l0MYEXSLkUipy1zVK/giphy.gif',
-  'HELP':      'https://media.giphy.com/media/26FKWxLSlHTGeIdlS/giphy.gif',
-  'STOP':      'https://media.giphy.com/media/3oz8xvTLySRClnMMko/giphy.gif',
+  'HELLO':      'https://media.giphy.com/media/3o7TKNKOfKlIhbD3gY/giphy.gif',
+  'GOOD':       '/signs/good',
+  'THANK YOU':  'https://media.giphy.com/media/vvv88lqGohwjK/giphy.gif',
+  'YES':        'https://media.giphy.com/media/l4Jz0THKhQLo61NBK/giphy.gif',
+  'NO':         'https://media.giphy.com/media/l4Jz4faxuS1FiSEV2/giphy.gif',
+  'OK':         '/signs/ok',
+  'I LOVE YOU': 'https://media.giphy.com/media/UNyHCOe7UFeJa/giphy.gif',
+  'CALL ME':    'https://media.giphy.com/media/3o7TKVpHgoqmVEX6so/giphy.gif',
+  'PEACE':      'https://media.giphy.com/media/G2BLEuDTOAEVrcV1pe/giphy.gif',
+  'SORRY':      'https://media.giphy.com/media/3o7TKq0oNLk8ljH7vG/giphy.gif',
+  'PLEASE':     'https://media.giphy.com/media/l0MYEXSLkUipy1zVK/giphy.gif',
+  'HELP':       'https://media.giphy.com/media/26FKWxLSlHTGeIdlS/giphy.gif',
+  'STOP':       'https://media.giphy.com/media/3oz8xvTLySRClnMMko/giphy.gif',
+  // 10 new signs — GIFs served locally from assets/signs/
+  // Download each from lifeprint.com and place in assets/signs/ with matching name
+  'WAIT':       '/signs/wait',
+  'MORE':       '/signs/more',
+  'FINISH':     '/signs/finish',
+  'WHERE':      '/signs/where',
+  'WHAT':       '/signs/what',
+  'NAME':       '/signs/name',
+  'EAT':        '/signs/eat',
+  'WATER':      '/signs/water',
+  'BATHROOM':   '/signs/bathroom',
+  'UNDERSTAND': '/signs/understand',
 };
 
 const SIGN_INFO = {
-  'HELLO':     'Open flat hand near forehead, fingers together — like a salute',
-  'GOOD':      'Flat hand at chin, then extend it forward',
-  'THANK YOU': 'Flat hand at lips, extend forward and slightly down',
-  'YES':       'Closed fist — hold steady (S-handshape)',
-  'NO':        'Index + middle fingers bent down touching thumb',
-  'OK':        'Index fingertip touches thumb tip, other 3 fingers up',
-  'I LOVE YOU':'Thumb + index + pinky extended — ILY handshape',
-  'CALL ME':   'Pinky + thumb out, other fingers curled — Y-shape',
-  'PEACE':     'Index + middle fingers raised in a V shape',
-  'SORRY':     'Closed fist rotated against chest',
-  'PLEASE':    'Flat open palm rubbed in a circle on chest',
-  'HELP':      'Thumbs-up right hand lifted by flat left palm',
-  'STOP':      'Right open hand chopped down into left palm',
+  'HELLO':      'Open flat hand near forehead, fingers together — like a salute',
+  'GOOD':       'Flat hand at chin, then extend it forward',
+  'THANK YOU':  'Flat hand at lips, extend forward and slightly down',
+  'YES':        'Closed fist — hold steady (S-handshape)',
+  'NO':         'Index + middle fingers bent down touching thumb',
+  'OK':         'Index fingertip touches thumb tip, other 3 fingers up',
+  'I LOVE YOU': 'Thumb + index + pinky extended — ILY handshape',
+  'CALL ME':    'Pinky + thumb out, other fingers curled — Y-shape',
+  'PEACE':      'Index + middle fingers raised in a V shape',
+  'SORRY':      'Closed fist rotated against chest',
+  'PLEASE':     'Flat open palm rubbed in a circle on chest',
+  'HELP':       'Thumbs-up right hand lifted by flat left palm',
+  'STOP':       'Right open hand chopped down into left palm',
+  'WAIT':       'Both open hands up, palms out, fingers spread — wiggle fingers slightly',
+  'MORE':       'Fingertips of both hands bunched together, tap fingertips twice',
+  'FINISH':     'Both hands open facing you, rotate/twist outward at the wrists',
+  'WHERE':      'Index finger points up, waggle it side to side',
+  'WHAT':       'Index finger of dominant hand sweeps across fingers of open other hand',
+  'NAME':       'Middle + index fingers of each hand cross like an X, tap together twice',
+  'EAT':        'Fingertips bunched together, bring to mouth twice (like eating)',
+  'WATER':      'W-handshape (three middle fingers up), tap chin twice',
+  'BATHROOM':   'T-handshape (thumb between index+middle), shake wrist side to side',
+  'UNDERSTAND': 'Closed fist at forehead, flick index finger up — lightbulb moment',
 };
 
 const SIGN_ORDER = [
   'HELLO','THANK YOU','PLEASE','SORRY','YES','NO',
   'OK','GOOD','PEACE','I LOVE YOU','CALL ME','HELP','STOP',
+  'WAIT','MORE','FINISH','WHERE','WHAT','NAME','EAT','WATER','BATHROOM','UNDERSTAND',
 ];
 
 let activeSignBtn = null;

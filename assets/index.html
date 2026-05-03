@@ -199,7 +199,8 @@ body {
 }
 #remote-vid-relay {
   position: absolute; inset: 0;
-  width: 100%; height: 100%; object-fit: cover;
+  width: 100%; height: 100%;
+  object-fit: contain;   /* show full camera frame — no cropping */
   display: none; background: #111;
 }
 #call-no-video-msg {
@@ -984,13 +985,18 @@ function startVideoRelay() {
   const vid = document.getElementById('local-call-video');
   let sending = false;
   const ackTimes = [];
-  let quality = 0.60;   // start conservative, adapts up/down based on RTT
+
+  // Desktop sends 640px (sharp on partner's screen), mobile sends 320px (saves bandwidth)
+  const isMobile  = window.innerWidth < 768;
+  const maxW      = isMobile ? 320 : 640;
+  const qualityMax = isMobile ? 0.70 : 0.82;
+  const qualityMin = isMobile ? 0.32 : 0.42;
+  let quality      = isMobile ? 0.55 : 0.65;
 
   videoRelayTimer = setInterval(() => {
     if (!roomId || !socket || !vid.videoWidth || sending) return;
 
-    // Keep frames small — 320px wide is plenty for face/sign recognition
-    const w = Math.min(vid.videoWidth, 320);
+    const w = Math.min(vid.videoWidth, maxW);
     const h = Math.round(w * vid.videoHeight / vid.videoWidth);
     if (relayCap.width !== w || relayCap.height !== h) {
       relayCap.width = w; relayCap.height = h;
@@ -1007,9 +1013,9 @@ function startVideoRelay() {
       if (ackTimes.length > 6) ackTimes.shift();
       const avg = ackTimes.reduce((a, b) => a + b, 0) / ackTimes.length;
 
-      // Adapt JPEG quality to keep up with network speed
-      if      (avg < 120) quality = Math.min(0.75, quality + 0.03);
-      else if (avg > 350) quality = Math.max(0.35, quality - 0.07);
+      // Raise quality when connection is fast, drop it when slow
+      if      (avg < 120) quality = Math.min(qualityMax, quality + 0.03);
+      else if (avg > 350) quality = Math.max(qualityMin, quality - 0.07);
 
       const badge = document.getElementById('relay-quality');
       if (badge) {
@@ -1018,7 +1024,7 @@ function startVideoRelay() {
         else                { badge.textContent = '🔴'; badge.title = `Slow (${Math.round(avg)}ms)`; }
       }
     });
-  }, 100);   // 100ms = up to 10fps, ack-gate ensures no buffer overflow
+  }, 100);
 }
 
 function stopVideoRelay() {
@@ -1030,7 +1036,7 @@ function stopVideoRelay() {
   const pip = document.getElementById('call-self-pip');
   let dragging = false, startX, startY, origRight, origBottom;
   function startDrag(cx, cy) {
-    const r = pip.getBoundingClientRect();
+    const r  = pip.getBoundingClientRect();
     const pr = pip.parentElement.getBoundingClientRect();
     origRight  = pr.right  - r.right;
     origBottom = pr.bottom - r.bottom;
@@ -1040,9 +1046,11 @@ function stopVideoRelay() {
   }
   function moveDrag(cx, cy) {
     if (!dragging) return;
-    const dx = cx - startX, dy = cy - startY;
-    const newRight  = Math.max(0, origRight  - dx);
-    const newBottom = Math.max(0, origBottom + dy);
+    const pr  = pip.parentElement.getBoundingClientRect();
+    const dx  = cx - startX, dy = cy - startY;
+    // Clamp so PiP never goes outside the call-screen
+    const newRight  = Math.max(0, Math.min(pr.width  - pip.offsetWidth,  origRight  - dx));
+    const newBottom = Math.max(0, Math.min(pr.height - pip.offsetHeight, origBottom + dy));
     pip.style.right  = newRight  + 'px';
     pip.style.bottom = newBottom + 'px';
   }

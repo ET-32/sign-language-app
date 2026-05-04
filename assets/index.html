@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SignAI — Sign Language Translator</title>
 <style>
-/* ── Theme variables ─────────────────────────────────────────────── */
 :root {
   --bg:         #0d1117;
   --bg2:        #161b22;
@@ -36,7 +35,6 @@
   --btn-hover:  #d0d7de;
 }
 
-/* ── Base ────────────────────────────────────────────────────────── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   background: var(--bg); color: var(--text);
@@ -46,7 +44,6 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-/* ── Landing ─────────────────────────────────────────────────────── */
 #landing {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 14px;
@@ -90,11 +87,9 @@ body {
 }
 .hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
 
-/* ── App ─────────────────────────────────────────────────────────── */
 #app { display: none; flex: 1; flex-direction: column; overflow: hidden; }
 #app.active { display: flex; }
 
-/* Top bar */
 #topbar {
   background: var(--bg2); border-bottom: 1px solid var(--border);
   padding: 8px 16px; display: flex; align-items: center;
@@ -115,7 +110,6 @@ body {
 .icon-btn.danger { border-color: var(--red); color: var(--red); }
 .icon-btn.danger:hover { background: #f8514922; }
 
-/* Solo panels */
 #panels {
   flex: 1; display: grid; grid-template-columns: 620px 1fr;
   gap: 14px; padding: 14px; overflow: hidden;
@@ -184,14 +178,13 @@ body {
 .btn-accent { padding: 8px 18px; border-radius: 8px; border: none; background: var(--accent); color: #000; cursor: pointer; font-size: 13px; font-weight: 700; transition: all 0.18s; }
 .btn-accent:hover { opacity: 0.85; }
 
-/* ── Video Call Screen — WhatsApp style ─────────────────────────── */
+/* Video Call Screen */
 #call-screen {
   display: none; position: relative; flex: 1;
   background: #0a0a14; overflow: hidden;
 }
 #call-screen.active { display: flex; }
 
-/* Partner video — full background */
 #call-remote-bg {
   position: absolute; inset: 0;
   background: #111827;
@@ -200,7 +193,7 @@ body {
 #remote-vid-relay {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  object-fit: contain;   /* show full camera frame — no cropping */
+  object-fit: contain;
   display: none; background: #111;
 }
 #call-no-video-msg {
@@ -226,7 +219,6 @@ body {
   text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
-/* Self PiP — draggable corner */
 #call-self-pip {
   position: absolute; bottom: 210px; right: 14px;
   width: 100px; height: 140px;
@@ -249,7 +241,6 @@ body {
   white-space: nowrap; z-index: 2; pointer-events: none;
 }
 
-/* Bottom controls overlay */
 #call-bottom-controls {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
   background: linear-gradient(transparent 0%, rgba(0,0,0,0.9) 35%);
@@ -276,7 +267,6 @@ body {
 .call-speech-text.partner-text { color: #7affb2; }
 #call-mic-status { font-size: 10px; color: rgba(255,255,255,0.38); flex-shrink: 0; }
 
-/* ── Auth modals ─────────────────────────────────────────────────── */
 .auth-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,0.7); z-index: 300;
@@ -303,7 +293,6 @@ body {
 .auth-switch { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 14px; }
 .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; }
 
-/* ── Account / subscription badge (landing) ─────────────────────── */
 #auth-bar {
   display: flex; align-items: center; gap: 10px;
   flex-wrap: wrap; justify-content: center; margin-bottom: 4px;
@@ -329,7 +318,6 @@ body {
 }
 .upgrade-chip:hover { background: #d2992230; }
 
-/* ── Upgrade modal ───────────────────────────────────────────────── */
 #upgrade-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,0.7); z-index: 300;
@@ -352,7 +340,6 @@ body {
 .plan-price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
 .plan-features { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-top: 6px; }
 
-/* ── Call Setup Modal ────────────────────────────────────────────── */
 #call-modal-overlay {
   display: none; position: fixed; inset: 0;
   background: #00000099; z-index: 200;
@@ -404,7 +391,6 @@ body {
 }
 .modal-close:hover { color: var(--text); }
 
-/* ── Incoming Sign Popup (shown on deaf user's screen) ──────────── */
 #incoming-sign-popup {
   display: none; position: fixed; bottom: 80px; right: 20px;
   background: var(--bg2); border: 1px solid var(--accent);
@@ -420,7 +406,6 @@ body {
 #incoming-sign-popup .isp-close { position: absolute; top: 6px; right: 10px; background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; line-height: 1; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── Sign It Modal ───────────────────────────────────────────────── */
 #signit-overlay {
   display: none; position: fixed; inset: 0;
   background: #00000099; z-index: 100;
@@ -466,7 +451,7 @@ body {
 .signit-btn:hover { background: var(--btn-hover); border-color: var(--accent); color: var(--accent); }
 .signit-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-/* ── Responsive ─────────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 900px) {
   body { overflow-y: auto; height: auto; min-height: 100vh; }
   #app { overflow-y: auto; }
@@ -482,7 +467,6 @@ body {
   #signit-canvas { width: 100%; height: auto; }
   .topbar-right { gap: 4px; }
   .icon-btn { padding: 5px 9px; font-size: 12px; }
-  /* call screen: fixed fullscreen overlay on mobile — covers topbar */
   #call-screen.active {
     position: fixed; inset: 0; z-index: 100;
     flex: unset; display: flex;
@@ -497,12 +481,10 @@ body {
 </head>
 <body>
 
-<!-- ── Landing ────────────────────────────────────────────────────── -->
 <div id="landing">
   <div class="hero-title">Sign<span>AI</span></div>
   <div class="hero-sub">Sign language translation — live and together.</div>
 
-  <!-- Auth bar -->
   <div id="auth-bar">
     <div id="auth-logged-in">
       <span class="auth-username-chip" id="auth-username-badge">👤</span>
@@ -526,7 +508,6 @@ body {
   <div class="hint">Video call requires a free account · 10 calls/month free</div>
 </div>
 
-<!-- ── App ───────────────────────────────────────────────────────── -->
 <div id="app">
   <div id="topbar">
     <span class="brand">SignAI</span>
@@ -540,7 +521,6 @@ body {
     </div>
   </div>
 
-  <!-- Solo panels -->
   <div id="panels">
     <div id="cam-panel">
       <div class="panel-label">Deaf Person — Camera</div>
@@ -578,9 +558,7 @@ body {
     </div>
   </div>
 
-  <!-- Call screen — WhatsApp style (replaces panels during a call) -->
   <div id="call-screen">
-    <!-- Partner video: full background -->
     <div id="call-remote-bg">
       <div id="call-no-video-msg">
         <div class="waiting-spinner"></div>
@@ -593,28 +571,23 @@ body {
     </div>
     <div id="remote-sign-overlay"></div>
 
-    <!-- Self PiP -->
     <div id="call-self-pip">
       <video id="local-call-video" autoplay playsinline muted></video>
       <div id="local-sign-overlay"></div>
     </div>
 
-    <!-- Bottom controls overlay -->
     <div id="call-bottom-controls">
       <div id="call-conn-status">Connecting…</div>
       <div id="call-transcript-box"></div>
-      <!-- Your speech row -->
       <div class="call-speech-row">
         <button class="btn-mic" id="call-mic-btn" onclick="toggleCallMic()">🎤 Speak</button>
         <div id="call-my-speech-box" class="call-speech-text placeholder">Your speech…</div>
         <span id="call-mic-status"></span>
       </div>
-      <!-- Partner speech row -->
       <div class="call-speech-row" style="padding-bottom:4px;">
         <span style="font-size:14px;flex-shrink:0;">👂</span>
         <div id="call-partner-speech-box" class="call-speech-text partner-text placeholder">Partner's speech…</div>
       </div>
-      <!-- End Call + Sign It buttons inside the screen (critical on mobile) -->
       <div id="call-in-screen-actions" style="display:flex;gap:10px;justify-content:center;padding:6px 0 4px;">
         <button onclick="endCall()"
           style="background:#f85149;color:#fff;border:none;border-radius:50px;padding:10px 28px;font-size:14px;font-weight:700;cursor:pointer;">
@@ -629,12 +602,10 @@ body {
   </div>
 </div>
 
-<!-- ── Call Setup Modal ───────────────────────────────────────────── -->
 <div id="call-modal-overlay" onclick="closeBgCall(event)">
   <div id="call-setup-modal">
     <button class="modal-close" onclick="closeCallModal()">×</button>
 
-    <!-- Step 1: create or join — visible by default -->
     <div id="call-setup-view">
       <div class="call-modal-title">📹 Video Call</div>
       <div class="call-modal-sub">Sign with anyone, anywhere in the world</div>
@@ -654,7 +625,6 @@ body {
       <div id="call-setup-err"></div>
     </div>
 
-    <!-- Step 2: waiting for partner — hidden by default -->
     <div id="call-waiting-view" style="display:none; text-align:center;">
       <div class="call-modal-title" id="call-waiting-title">Waiting for partner…</div>
       <div class="call-modal-sub"  id="call-waiting-sub">Share the code or link with your partner</div>
@@ -669,7 +639,6 @@ body {
   </div>
 </div>
 
-<!-- ── Incoming Sign Popup ────────────────────────────────────────── -->
 <div id="incoming-sign-popup">
   <button class="isp-close" onclick="closeIncomingSign()">×</button>
   <img id="incoming-sign-gif" alt="Partner's sign" />
@@ -677,7 +646,6 @@ body {
   <div class="isp-sub">Partner is signing to you</div>
 </div>
 
-<!-- ── Login Modal ───────────────────────────────────────────────── -->
 <div class="auth-overlay" id="login-overlay" onclick="closeBgLogin(event)">
   <div class="auth-modal">
     <button class="modal-close" onclick="closeLogin()">×</button>
@@ -699,7 +667,6 @@ body {
   </div>
 </div>
 
-<!-- ── Register Modal ─────────────────────────────────────────────── -->
 <div class="auth-overlay" id="register-overlay" onclick="closeBgRegister(event)">
   <div class="auth-modal">
     <button class="modal-close" onclick="closeRegister()">×</button>
@@ -726,7 +693,6 @@ body {
   </div>
 </div>
 
-<!-- ── Upgrade Modal ──────────────────────────────────────────────── -->
 <div id="upgrade-overlay" onclick="closeBgUpgrade(event)">
   <div id="upgrade-modal">
     <button class="modal-close" onclick="closeUpgrade()">×</button>
@@ -749,7 +715,6 @@ body {
   </div>
 </div>
 
-<!-- ── Sign It Modal ─────────────────────────────────────────────── -->
 <div id="signit-overlay" onclick="closeBgSignIt(event)">
   <div id="signit-modal">
     <button class="modal-close" onclick="closeSignIt()">×</button>
@@ -775,17 +740,15 @@ body {
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
-// ── Config ─────────────────────────────────────────────────────────────
 let CONF_THRESHOLD = 0.65;
-const FRAME_MS       = 150;
+const FRAME_MS       = 200;
+const CALL_FRAME_MS  = 500;
 const REPEAT_DELAY   = 1.5;
 
-// ── State ──────────────────────────────────────────────────────────────
 let stream = null, pendingReq = false;
 let lastLabel = null, lastLabelTs = 0;
 let soundOn = true, audioCtx = null;
 
-// ── Elements ───────────────────────────────────────────────────────────
 const video      = document.getElementById('live-video');
 const signBig    = document.getElementById('sign-big');
 const confBar    = document.getElementById('conf-bar');
@@ -796,7 +759,6 @@ const micBtn     = document.getElementById('mic-btn');
 
 
 
-// ── Theme ──────────────────────────────────────────────────────────────
 let isDark = true;
 function toggleTheme() {
   isDark = !isDark;
@@ -806,7 +768,6 @@ function toggleTheme() {
 }
 if (localStorage.getItem('theme') === 'light') toggleTheme();
 
-// ── Sound ──────────────────────────────────────────────────────────────
 function toggleSound() {
   soundOn = !soundOn;
   const b = document.getElementById('sound-btn');
@@ -828,7 +789,6 @@ function playDetectionSound() {
   } catch(_) {}
 }
 
-// ── Home navigation ───────────────────────────────────────────────────
 function goHome() {
   if (callActive) { endCall(); return; }
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
@@ -841,7 +801,6 @@ function goHome() {
   document.getElementById('landing').classList.remove('gone');
 }
 
-// ── Solo Activate ──────────────────────────────────────────────────────
 async function activate() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
@@ -855,7 +814,6 @@ async function activate() {
   }
 }
 
-// ── Solo Prediction loop ───────────────────────────────────────────────
 const capCanvas = document.createElement('canvas');
 const capCtx    = capCanvas.getContext('2d');
 
@@ -865,7 +823,7 @@ function startLoop() {
   loopTimer = setInterval(async () => {
     if (pendingReq || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
     pendingReq = true;
-    const sw = Math.min(video.videoWidth, 480);
+    const sw = Math.min(video.videoWidth, 320);
     const sh = Math.round(sw * video.videoHeight / video.videoWidth);
     capCanvas.width = sw; capCanvas.height = sh;
     capCtx.drawImage(video, 0, 0, sw, sh);
@@ -873,7 +831,7 @@ function startLoop() {
       const resp = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: capCanvas.toDataURL('image/jpeg', 0.75) }),
+        body: JSON.stringify({ image: capCanvas.toDataURL('image/jpeg', 0.75), annotate: false }),
       });
       handleResult(await resp.json());
     } catch(_) {}
@@ -932,7 +890,6 @@ function exportTranscript() {
   a.click(); URL.revokeObjectURL(a.href);
 }
 
-// ── Speech ─────────────────────────────────────────────────────────────
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null, micOn = false;
 
@@ -966,9 +923,6 @@ function startMic() {
 function stopMic()    { micOn = false; if (recognition) recognition.stop(); }
 function clearSpeech(){ speechDisp.textContent = 'Press mic to start speaking'; speechDisp.classList.add('placeholder'); }
 
-// ─────────────────────────────────────────────────────────────────────────
-//  VIDEO CALL — Socket.IO relay (reliable across all networks)
-// ─────────────────────────────────────────────────────────────────────────
 let socket = null, roomId = null;
 let callActive = false, localCallStream = null;
 let callLoopTimer = null, callPending = false;
@@ -986,7 +940,6 @@ function startVideoRelay() {
   let sending = false;
   const ackTimes = [];
 
-  // Desktop sends 640px (sharp on partner's screen), mobile sends 320px (saves bandwidth)
   const isMobile  = window.innerWidth < 768;
   const maxW      = isMobile ? 320 : 640;
   const qualityMax = isMobile ? 0.70 : 0.82;
@@ -1013,7 +966,6 @@ function startVideoRelay() {
       if (ackTimes.length > 6) ackTimes.shift();
       const avg = ackTimes.reduce((a, b) => a + b, 0) / ackTimes.length;
 
-      // Raise quality when connection is fast, drop it when slow
       if      (avg < 120) quality = Math.min(qualityMax, quality + 0.03);
       else if (avg > 350) quality = Math.max(qualityMin, quality - 0.07);
 
@@ -1031,7 +983,6 @@ function stopVideoRelay() {
   if (videoRelayTimer) { clearInterval(videoRelayTimer); videoRelayTimer = null; }
 }
 
-// ── PiP drag (touch + mouse) ──────────────────────────────────────────────
 (function initPipDrag() {
   const pip = document.getElementById('call-self-pip');
   let dragging = false, startX, startY, origRight, origBottom;
@@ -1048,7 +999,6 @@ function stopVideoRelay() {
     if (!dragging) return;
     const pr  = pip.parentElement.getBoundingClientRect();
     const dx  = cx - startX, dy = cy - startY;
-    // Clamp so PiP never goes outside the call-screen
     const newRight  = Math.max(0, Math.min(pr.width  - pip.offsetWidth,  origRight  - dx));
     const newBottom = Math.max(0, Math.min(pr.height - pip.offsetHeight, origBottom + dy));
     pip.style.right  = newRight  + 'px';
@@ -1166,7 +1116,6 @@ async function createRoom() {
     }
     const data = await r.json();
     socket.emit('join-room', { roomId: data.roomId });
-    // Refresh call count shown in auth bar
     fetchCurrentUser();
   } catch(err) {
     document.getElementById('call-setup-err').textContent = 'Camera/mic error: ' + err.message;
@@ -1239,7 +1188,6 @@ function onCallConnected() {
   startCallLoop();
 }
 
-// ── Call speech (hearing person speaks → deaf person reads) ───────────
 let callMicOn = false, callRecognition = null;
 
 function toggleCallMic() {
@@ -1265,11 +1213,9 @@ function startCallMic() {
     }
     const text = (final || interim).trim();
     if (text) {
-      // Show on your own screen
       const myBox = document.getElementById('call-my-speech-box');
       myBox.textContent = text;
       myBox.classList.remove('placeholder');
-      // Send to partner
       if (socket && roomId) socket.emit('call-speech', { roomId, text, isFinal: !!final });
     }
   };
@@ -1299,7 +1245,6 @@ function endCall() {
   if (loopTimer) { clearInterval(loopTimer); loopTimer = null; }
   if (socket) { socket.disconnect(); socket = null; roomId = null; }
 
-  // Reset call UI
   document.getElementById('call-screen').classList.remove('active');
   document.getElementById('panels').style.display       = '';
   document.getElementById('end-call-btn').style.display = 'none';
@@ -1317,7 +1262,6 @@ function endCall() {
   const spBox = document.getElementById('call-partner-speech-box');
   spBox.textContent = 'Partner\'s speech…'; spBox.classList.add('placeholder');
 
-  // Return to landing page
   document.getElementById('app').classList.remove('active');
   document.getElementById('landing').classList.remove('gone');
 }
@@ -1327,15 +1271,15 @@ function startCallLoop() {
   callLoopTimer = setInterval(async () => {
     if (!callActive || callPending || callVid.readyState < 2) return;
     callPending = true;
-    const sw = Math.min(callVid.videoWidth || 480, 480);
-    const sh = Math.round(sw * (callVid.videoHeight || 480) / (callVid.videoWidth || 480));
+    const sw = Math.min(callVid.videoWidth || 240, 240);
+    const sh = Math.round(sw * (callVid.videoHeight || 240) / (callVid.videoWidth || 240));
     callCapCanvas.width = sw; callCapCanvas.height = sh;
     callCapCtx.drawImage(callVid, 0, 0, sw, sh);
     try {
       const resp = await fetch('/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: callCapCanvas.toDataURL('image/jpeg', 0.75) }),
+        body: JSON.stringify({ image: callCapCanvas.toDataURL('image/jpeg', 0.7), annotate: false }),
       });
       const data = await resp.json();
       const lbl = data.label, conf = data.confidence || 0;
@@ -1348,7 +1292,7 @@ function startCallLoop() {
       }
     } catch(_) {}
     callPending = false;
-  }, FRAME_MS);
+  }, CALL_FRAME_MS);
 }
 
 function appendCallTranscript(who, label, color) {
@@ -1365,7 +1309,6 @@ function appendCallTranscript(who, label, color) {
   playDetectionSound();
 }
 
-// Auto-join if URL has ?room=
 (function checkUrlRoom() {
   const urlRoom = new URLSearchParams(window.location.search).get('room');
   if (!urlRoom) return;
@@ -1381,9 +1324,6 @@ function appendCallTranscript(who, label, color) {
   document.getElementById('landing').appendChild(btn);
 })();
 
-// ─────────────────────────────────────────────────────────────────────────
-//  AUTH — login / register / logout
-// ─────────────────────────────────────────────────────────────────────────
 let currentUser = null;
 
 async function fetchCurrentUser() {
@@ -1472,12 +1412,8 @@ async function logout() {
   currentUser = null; updateAuthUI();
 }
 
-// Check session on page load
 fetchCurrentUser();
 
-// ─────────────────────────────────────────────────────────────────────────
-//  SIGN IT — real ASL GIFs so hearing person can learn & copy signs
-// ─────────────────────────────────────────────────────────────────────────
 
 const SIGN_GIFS = {
   'HELLO':      'https://media.giphy.com/media/3o7TKNKOfKlIhbD3gY/giphy.gif',
@@ -1493,18 +1429,6 @@ const SIGN_GIFS = {
   'PLEASE':     'https://media.giphy.com/media/l0MYEXSLkUipy1zVK/giphy.gif',
   'HELP':       'https://media.giphy.com/media/26FKWxLSlHTGeIdlS/giphy.gif',
   'STOP':       'https://media.giphy.com/media/3oz8xvTLySRClnMMko/giphy.gif',
-  // 10 new signs — GIFs served locally from assets/signs/
-  // Download each from lifeprint.com and place in assets/signs/ with matching name
-  'WAIT':       '/signs/wait',
-  'MORE':       '/signs/more',
-  'FINISH':     '/signs/finish',
-  'WHERE':      '/signs/where',
-  'WHAT':       '/signs/what',
-  'NAME':       '/signs/name',
-  'EAT':        '/signs/eat',
-  'WATER':      '/signs/water',
-  'BATHROOM':   '/signs/bathroom',
-  'UNDERSTAND': '/signs/understand',
 };
 
 const SIGN_INFO = {
@@ -1521,22 +1445,11 @@ const SIGN_INFO = {
   'PLEASE':     'Flat open palm rubbed in a circle on chest',
   'HELP':       'Thumbs-up right hand lifted by flat left palm',
   'STOP':       'Right open hand chopped down into left palm',
-  'WAIT':       'Both open hands up, palms out, fingers spread — wiggle fingers slightly',
-  'MORE':       'Fingertips of both hands bunched together, tap fingertips twice',
-  'FINISH':     'Both hands open facing you, rotate/twist outward at the wrists',
-  'WHERE':      'Index finger points up, waggle it side to side',
-  'WHAT':       'Index finger of dominant hand sweeps across fingers of open other hand',
-  'NAME':       'Middle + index fingers of each hand cross like an X, tap together twice',
-  'EAT':        'Fingertips bunched together, bring to mouth twice (like eating)',
-  'WATER':      'W-handshape (three middle fingers up), tap chin twice',
-  'BATHROOM':   'T-handshape (thumb between index+middle), shake wrist side to side',
-  'UNDERSTAND': 'Closed fist at forehead, flick index finger up — lightbulb moment',
 };
 
 const SIGN_ORDER = [
   'HELLO','THANK YOU','PLEASE','SORRY','YES','NO',
   'OK','GOOD','PEACE','I LOVE YOU','CALL ME','HELP','STOP',
-  'WAIT','MORE','FINISH','WHERE','WHAT','NAME','EAT','WATER','BATHROOM','UNDERSTAND',
 ];
 
 let activeSignBtn = null;

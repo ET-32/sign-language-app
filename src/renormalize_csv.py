@@ -1,13 +1,3 @@
-"""
-Re-normalize existing signs.csv to use wrist-centered, palm-scaled landmarks.
-
-Run ONCE after updating extract_landmarks() in predictor.py.
-Creates a backup of the old file before rewriting.
-
-Usage:
-    py -m src.renormalize_csv
-"""
-
 import csv
 import os
 import shutil
@@ -55,9 +45,7 @@ def main():
         writer.writerows(rows)
 
     print(f'Re-normalized {len(rows)} samples across {len(set(r[0] for r in rows))} signs.')
-    print()
-    print('Next step — retrain the model:')
-    print('  py -m src.train_model')
+    print('Run py -m src.train_model to retrain.')
 
 
 if __name__ == '__main__':

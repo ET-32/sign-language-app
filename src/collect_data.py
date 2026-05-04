@@ -1,12 +1,3 @@
-"""
-Data Collection — records hand landmark data for each sign.
-
-Menu-driven: pick a sign by number, hold the pose shown on screen,
-press SPACE to start auto-capture (~20 seconds per sign). Press Q to quit.
-
-Two hands are supported — for signs like HELP and STOP, show both hands.
-"""
-
 import csv
 import os
 import time

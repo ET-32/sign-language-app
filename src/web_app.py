@@ -1,7 +1,3 @@
-"""
-Flask web server — serves the web UI, handles frame prediction, and Socket.IO relay.
-"""
-
 import base64
 import os
 import random
@@ -22,7 +18,6 @@ _DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'signai
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'signai-dev-key-change-in-prod')
 
-# Railway (and Heroku) supply postgres:// but SQLAlchemy 2.x needs postgresql://
 _db_url = os.environ.get('DATABASE_URL', f'sqlite:///{_DB_PATH}')
 if _db_url.startswith('postgres://'):
     _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
@@ -32,17 +27,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 login_manager = LoginManager(app)
-
 socketio = SocketIO(app, cors_allowed_origins='*')
 
-_pred      = None
-_lock      = threading.Lock()
-_rooms     = {}
+_pred       = None
+_lock       = threading.Lock()
+_rooms      = {}
 _rooms_lock = threading.Lock()
 
 import logging
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
-
 
 with app.app_context():
     db.create_all()
@@ -71,16 +64,13 @@ def _make_room_id():
 
 
 def _user_dict(user):
-    remaining = user.calls_remaining()
     return {
         'username':        user.username,
         'is_subscribed':   user.is_subscribed,
-        'calls_remaining': remaining,   # None = unlimited (Pro)
+        'calls_remaining': user.calls_remaining(),
         'can_call':        user.can_call(),
     }
 
-
-# ── Auth API ───────────────────────────────────────────────────────────────────
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
@@ -137,8 +127,6 @@ def api_me():
     return jsonify(_user_dict(current_user))
 
 
-# ── HTTP Routes ────────────────────────────────────────────────────────────────
-
 @app.route('/')
 def index():
     return send_from_directory(_ASSETS, 'index.html')
@@ -161,7 +149,6 @@ def create_room():
 
 @app.route('/signs/<path:name>')
 def serve_sign(name):
-    """Serve locally stored ASL GIFs — single letters and word names (good, ok, wait …)."""
     clean = ''.join(c for c in name.lower() if c.isalpha())
     if not clean or len(clean) > 20:
         return '', 404
@@ -176,6 +163,7 @@ def serve_sign(name):
 def predict():
     data    = request.get_json(force=True, silent=True) or {}
     img_b64 = data.get('image', '')
+    annotate = data.get('annotate', True)
 
     if ',' in img_b64:
         img_b64 = img_b64.split(',')[1]
@@ -185,33 +173,33 @@ def predict():
         nparr     = np.frombuffer(img_bytes, np.uint8)
         frame     = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     except Exception:
-        return jsonify({'label': None, 'confidence': 0, 'image': None})
+        return jsonify({'label': None, 'confidence': 0})
 
     if frame is None:
-        return jsonify({'label': None, 'confidence': 0, 'image': None})
+        return jsonify({'label': None, 'confidence': 0})
 
     try:
         predictor = _get_predictor()
     except FileNotFoundError:
         return jsonify({
-            'label': None, 'confidence': 0, 'image': None,
+            'label': None, 'confidence': 0,
             'error': 'Model not trained yet — run: py -m src.train_model'
         })
 
     with _lock:
-        annotated, label, conf = predictor.process_frame(frame)
+        annotated, label, conf = predictor.process_frame(frame, draw=annotate)
 
-    _, buf  = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 82])
-    ann_b64 = 'data:image/jpeg;base64,' + base64.b64encode(buf).decode()
-
-    return jsonify({
+    result = {
         'label':      label,
         'confidence': round(float(conf), 3) if conf else 0,
-        'image':      ann_b64,
-    })
+    }
 
+    if annotate:
+        _, buf = cv2.imencode('.jpg', annotated, [cv2.IMWRITE_JPEG_QUALITY, 82])
+        result['image'] = 'data:image/jpeg;base64,' + base64.b64encode(buf).decode()
 
-# ── Socket.IO ──────────────────────────────────────────────────────────────────
+    return jsonify(result)
+
 
 @socketio.on('join-room')
 def on_join(data):
@@ -291,8 +279,6 @@ def on_disconnect():
     for sid in others:
         emit('peer-left', {}, to=sid)
 
-
-# ── Entry point ────────────────────────────────────────────────────────────────
 
 def run(host='0.0.0.0', port=5055):
     socketio.run(app, host=host, port=port, debug=False,

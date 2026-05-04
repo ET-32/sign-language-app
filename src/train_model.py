@@ -1,18 +1,11 @@
-"""
-Train the sign language model.
-Reads data/signs.csv and trains a classifier.
-Saves to models/sign_model.pkl.
-"""
-
 import os
 import csv
 import pickle
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 
 DATA_PATH  = os.path.join(os.path.dirname(__file__), '..', 'data', 'signs.csv')
@@ -53,13 +46,12 @@ def main():
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # SVM with RBF kernel — better than Random Forest for hand landmark data
     model = Pipeline([
         ('scaler', StandardScaler()),
         ('clf',    SVC(kernel='rbf', C=10, gamma='scale', probability=True)),
     ])
 
-    print('Training SVM model...')
+    print('Training model...')
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)

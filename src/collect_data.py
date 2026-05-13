@@ -8,7 +8,7 @@ import mediapipe as mp
 from src.predictor import extract_landmarks
 
 DATA_PATH       = os.path.join(os.path.dirname(__file__), '..', 'data', 'signs.csv')
-SAMPLES_PER_SIGN = 100
+SAMPLES_PER_SIGN = 150
 CAPTURE_INTERVAL = 0.18   # seconds between auto-captures
 
 mp_hands = mp.solutions.hands
